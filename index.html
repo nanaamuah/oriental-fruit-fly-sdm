@@ -94,7 +94,7 @@ div.csl-indent {
   <li><a href="#which-predictors" id="toc-which-predictors" class="nav-link" data-scroll-target="#which-predictors"><span class="header-section-number">5.2</span> Which predictors</a></li>
   <li><a href="#suitability-surfaces" id="toc-suitability-surfaces" class="nav-link" data-scroll-target="#suitability-surfaces"><span class="header-section-number">5.3</span> Suitability surfaces</a></li>
   </ul></li>
-  <li><a href="#what-would-change-the-answer" id="toc-what-would-change-the-answer" class="nav-link" data-scroll-target="#what-would-change-the-answer"><span class="header-section-number">6</span> What would change the answer</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations"><span class="header-section-number">6</span> Limitations</a></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">7</span> Conclusion</a></li>
   <li><a href="#data-and-code-availability" id="toc-data-and-code-availability" class="nav-link" data-scroll-target="#data-and-code-availability"><span class="header-section-number">8</span> Data and code availability</a></li>
   <li><a href="#software" id="toc-software" class="nav-link" data-scroll-target="#software"><span class="header-section-number">9</span> Software</a></li>
@@ -140,18 +140,16 @@ div.csl-indent {
 <h2 class="unnumbered anchored" data-anchor-id="summary">Summary</h2>
 <p><em>Bactrocera dorsalis</em> was first detected in Africa in 2003 and had reached 35 sub-Saharan countries within fifteen years <span class="citation" data-cites="mutamiswa2021">(<a href="#ref-mutamiswa2021" role="doc-biblioref">Mutamiswa et al., 2021</a>)</span>. It is a regulated quarantine pest in the markets West African horticulture sells into, and its recorded distribution is now dense enough to model.</p>
 <p>This report fits a climatic suitability model for the species across West Africa from 1,089 cleaned public occurrence records, and then does the thing that is usually left out. The same model is scored under conventional random cross-validation and under folds separated in space. Apparent performance falls from an AUC of 0.964 to 0.790, and TSS from 0.826 to 0.465. The standard deviation across folds grows by roughly a factor of thirty.</p>
-<p>That gap is the result. A model that loses little under spatial validation has learned climate. A model that loses a great deal has learned where entomologists have been working.</p>
+<p>If a model still works well when tested on new geographic areas, it actually understands the climate patterns. If it fails on new areas, it just memorized the map of where scientists prefer to look for bugs.</p>
 </section>
 <section id="what-this-model-is-and-is-not" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="what-this-model-is-and-is-not"><span class="header-section-number">1</span> What this model is, and is not</h2>
-<p>The caution belongs before the findings rather than after them.</p>
 <p>This is a model of where climate resembles the climate at places where someone recorded this insect and uploaded the record. GBIF is a convenience sample, and recording effort follows funded projects, road networks and institutional interest <span class="citation" data-cites="zizka2019">(<a href="#ref-zizka2019" role="doc-biblioref">Zizka et al., 2019</a>)</span>. The target-group background used here reduces that distortion <span class="citation" data-cites="phillips2009">(<a href="#ref-phillips2009" role="doc-biblioref">Phillips et al., 2009</a>)</span> but does not remove it.</p>
 <p>A climate-only model omits host availability, irrigation, trade pathways, natural enemies and management, all of which decide whether a climatically suitable place is actually infested. MaxEnt output is a relative suitability index, not a probability of presence <span class="citation" data-cites="elith2011">(<a href="#ref-elith2011" role="doc-biblioref">Elith et al., 2011</a>)</span>, and thresholding it into a binary map imposes a decision the model does not contain.</p>
 <p>Absence of records from a country is not absence of the pest. That asymmetry falls hardest on the countries with the least surveillance capacity, which is exactly where a suitability map would be most useful.</p>
 </section>
 <section id="question" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="question"><span class="header-section-number">2</span> Question</h2>
-<p>Two halves, and the second is the one that matters.</p>
 <p>First, which climatic variables separate the localities where <em>B. dorsalis</em> has been recorded from the wider background, and what does the resulting suitability surface look like over West Africa and over Ghana?</p>
 <p>Second, when the model is validated on spatially separated blocks rather than randomly held-out points, so that it can no longer score itself on the neighbourhood it was trained in, how far does its apparent performance fall?</p>
 </section>
@@ -160,7 +158,7 @@ div.csl-indent {
 <section id="occurrence-records" class="level3" data-number="3.1">
 <h3 data-number="3.1" class="anchored" data-anchor-id="occurrence-records"><span class="header-section-number">3.1</span> Occurrence records</h3>
 <p>Records were retrieved through the GBIF download API, which mints a citable DOI for each query. The <em>B. dorsalis</em> download returned 11,757 georeferenced records with no flagged geospatial issue (DOI 10.15468/dl.jzyuk9). A second download returned 328,343 Tephritidae records excluding <em>B. dorsalis</em> (DOI 10.15468/dl.g9edqf), used later to build the background.</p>
-<p>Taxonomy matters here. <em>B. invadens</em>, the name under which the African invasion was first described, was synonymised with <em>B. dorsalis</em> in 2015 <span class="citation" data-cites="schutze2015">(<a href="#ref-schutze2015" role="doc-biblioref"><span class="nocase">Schutze et al.</span>, 2015</a>)</span>. Records filed under both names resolve to the same GBIF taxon key, so the African records are not lost.</p>
+<p>Taxonomy is an important factor here. <em>B. invadens</em>, the name under which the African invasion was first described, was synonymised with <em>B. dorsalis</em> in 2015 <span class="citation" data-cites="schutze2015">(<a href="#ref-schutze2015" role="doc-biblioref"><span class="nocase">Schutze et al.</span>, 2015</a>)</span>. Records filed under both names resolve to the same GBIF taxon key, so the African records are not lost.</p>
 </section>
 <section id="predictors" class="level3" data-number="3.2">
 <h3 data-number="3.2" class="anchored" data-anchor-id="predictors"><span class="header-section-number">3.2</span> Predictors</h3>
@@ -234,14 +232,14 @@ Table&nbsp;1: Records retained at each cleaning stage.
 </section>
 <section id="models" class="level3" data-number="4.3">
 <h3 data-number="4.3" class="anchored" data-anchor-id="models"><span class="header-section-number">4.3</span> Models</h3>
-<p>MaxEnt <span class="citation" data-cites="phillips2006 elith2011">(<a href="#ref-elith2011" role="doc-biblioref">Elith et al., 2011</a>; <a href="#ref-phillips2006" role="doc-biblioref">Phillips et al., 2006</a>)</span> and a ridge-penalised logistic regression were both fitted. Ridge rather than lasso, because the retained predictors remain correlated after VIF screening, and ridge shrinks correlated coefficients together instead of arbitrarily selecting one.</p>
+<p>MaxEnt <span class="citation" data-cites="phillips2006 elith2011">(<a href="#ref-elith2011" role="doc-biblioref">Elith et al., 2011</a>; <a href="#ref-phillips2006" role="doc-biblioref">Phillips et al., 2006</a>)</span> and a ridge-penalised logistic regression were both fitted. Ridge instead of lasso, because the retained predictors remain correlated after VIF screening, and ridge shrinks correlated coefficients together instead of arbitrarily selecting one.</p>
 <p>Two algorithms were run so that the validation result could not be dismissed as a quirk of one fitting procedure.</p>
 </section>
 <section id="validation" class="level3" data-number="4.4">
 <h3 data-number="4.4" class="anchored" data-anchor-id="validation"><span class="header-section-number">4.4</span> Validation</h3>
 <p>Random five-fold cross-validation, stratified by response, provides the conventional baseline. Spatially blocked five-fold cross-validation provides the contrast <span class="citation" data-cites="valavi2019">(<a href="#ref-valavi2019" role="doc-biblioref">Valavi et al., 2019</a>)</span>.</p>
-<p>Block size was taken from the empirical range of spatial autocorrelation in the predictors, estimated by variogram rather than chosen by eye. The blocked validation was then repeated at half and double that size, because the estimated range is one number with uncertainty around it, and a conclusion that only holds at one block size is not a conclusion.</p>
-<p>Three metrics are reported: AUC, TSS <span class="citation" data-cites="allouche2006">(<a href="#ref-allouche2006" role="doc-biblioref">Allouche et al., 2006</a>)</span>, and the continuous Boyce index <span class="citation" data-cites="hirzel2006">(<a href="#ref-hirzel2006" role="doc-biblioref">Hirzel et al., 2006</a>)</span>, the last being the one designed for presence-background rather than presence-absence data.</p>
+<p>Block size was taken from the empirical range of spatial autocorrelation in the predictors, estimated by variogram. The blocked validation was then repeated at half and double that size, because the estimated range is one number with uncertainty around it.</p>
+<p>Three metrics are reported: AUC, TSS <span class="citation" data-cites="allouche2006">(<a href="#ref-allouche2006" role="doc-biblioref">Allouche et al., 2006</a>)</span>, and the continuous Boyce index <span class="citation" data-cites="hirzel2006">(<a href="#ref-hirzel2006" role="doc-biblioref">Hirzel et al., 2006</a>)</span>, the last being the one designed for presence-background.</p>
 <p>Within every fold the classification threshold was taken from the training data at maximum sensitivity plus specificity, then applied to the held-out data. Taking it from the test data would let the threshold adapt to the answer and would conceal the effect being measured.</p>
 </section>
 </section>
@@ -339,8 +337,8 @@ Figure&nbsp;1: Validation scores by scheme, algorithm and metric. Small points a
 </figure>
 </div>
 <p>MaxEnt loses 0.174 AUC, 0.361 TSS and 0.291 Boyce when folds are separated in space. The GLM loses 0.149, 0.300 and 0.315. Both algorithms fall by a similar amount, which is the useful part of having run two: the optimism belongs to the validation design, not to MaxEnt.</p>
-<p>The spread matters as much as the mean. Under random folds the five MaxEnt AUCs sit between 0.958 and 0.968, a standard deviation of 0.005. Under blocked folds they run 0.977, 0.553, 0.692, 0.775 and 0.954, a standard deviation of 0.179. The model is excellent in some regions and close to uninformative in others. Random cross-validation reports none of that, because every fold contains near neighbours of its own training points, and a model only has to interpolate between them to score well <span class="citation" data-cites="roberts2017">(<a href="#ref-roberts2017" role="doc-biblioref">Roberts et al., 2017</a>)</span>.</p>
-<p>An AUC of 0.553 on one blocked fold is not a failed run to be tuned away. It is the finding.</p>
+<p>The spread is equally as important as the mean. Under random folds the five MaxEnt AUCs sit between 0.958 and 0.968, a standard deviation of 0.005. Under blocked folds they run 0.977, 0.553, 0.692, 0.775 and 0.954, a standard deviation of 0.179. The model is excellent in some regions and close to uninformative in others. Random cross-validation reports none of that, because every fold contains near neighbours of its own training points, and a model only has to interpolate between them to score well <span class="citation" data-cites="roberts2017">(<a href="#ref-roberts2017" role="doc-biblioref">Roberts et al., 2017</a>)</span>.</p>
+<p>An AUC of 0.553 on one blocked fold is not a failed run to be removed. It is a warning that the model has learned the map of where entomologists have been working, and that it cannot be trusted to extrapolate to new areas. The blocked validation is the one that should travel with the model if it is used to inform surveillance or phytosanitary decisions.</p>
 </section>
 <section id="which-predictors" class="level3" data-number="5.2">
 <h3 data-number="5.2" class="anchored" data-anchor-id="which-predictors"><span class="header-section-number">5.2</span> Which predictors</h3>
@@ -428,8 +426,8 @@ Figure&nbsp;2: MaxEnt response curves for the ten retained predictors. Axes vary
 </figcaption>
 </figure>
 </div>
-<p>Wettest-month precipitation and annual mean temperature together account for just over four fifths of the contribution. That is consistent with the biology of a species that needs warmth and moist fruiting seasons. It is equally consistent with sampling bias, because people and their fruit trees also concentrate in warm, wet places, and the two explanations cannot be separated by this model.</p>
-<p>Percent contribution in MaxEnt is heuristic and depends on the order variables entered the fit. Read the table as a ranking, not as a partition of explained variance.</p>
+<p>Wettest-month precipitation and annual mean temperature together account for just over four fifths of the contribution. That is consistent with the biology of a species that needs warmth and moist fruiting seasons. It is equally consistent with sampling bias, because people and their fruit trees also concentrate in warm, wet places, however, the two explanations cannot be separated by this model.</p>
+<p>Percent contribution in MaxEnt is heuristic and depends on the order variables entered the fit. The table should be read as a ranking, not as a partition of explained variance.</p>
 </section>
 <section id="suitability-surfaces" class="level3" data-number="5.3">
 <h3 data-number="5.3" class="anchored" data-anchor-id="suitability-surfaces"><span class="header-section-number">5.3</span> Suitability surfaces</h3>
@@ -454,19 +452,19 @@ Figure&nbsp;4: Modelled climatic suitability across Ghana.
 </figure>
 </div>
 <p>The regional surface separates the Sahelian north, which the model treats as unsuitable, from the coastal and Guinea savanna belt running along the Gulf of Guinea. Within Ghana the pattern is not a simple south-to-north gradient. The highest values fall in the mid-country belt around the Black Volta and the Northern and Bono East areas, with a further pocket at the south-east coast, while the forest zone in the south-west returns middling values.</p>
-<p>The EPPO overlay is an external check rather than a validation. EPPO records reporting, not presence, so a country outlined as having no record is a country from which nobody has reported. Where the model predicts high suitability inside such a country, the map cannot distinguish a surveillance gap from a false positive. Read against the blocked-fold spread in <a href="#tbl-validation" class="quarto-xref">Table&nbsp;2</a>, that ambiguity should be taken seriously rather than resolved optimistically.</p>
+<p>The EPPO overlay is an external check. EPPO records reporting, not presence, so a country outlined as having no record is a country from which nobody has reported. Where the model predicts high suitability inside such a country, the map cannot distinguish a surveillance gap from a false positive. Read against the blocked-fold spread in <a href="#tbl-validation" class="quarto-xref">Table&nbsp;2</a>, that ambiguity should be taken seriously.</p>
 </section>
 </section>
-<section id="what-would-change-the-answer" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="what-would-change-the-answer"><span class="header-section-number">6</span> What would change the answer</h2>
-<p><strong>More African records would change it most.</strong> 75 cleaned African records is thin for a continental projection. The model leans on the Asian native range for its climate envelope and assumes the invasive population occupies the same one, which is the standard assumption in invasive-species modelling and is not always true.</p>
-<p><strong>A better background would change it next.</strong> The target group correction assumes Tephritidae recording effort resembles <em>B. dorsalis</em> recording effort. That is plausible and untested here.</p>
+<section id="limitations" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="limitations"><span class="header-section-number">6</span> Limitations</h2>
+<p>75 cleaned African records is thin for a continental projection. The model leans on the Asian native range for its climate envelope and assumes the invasive population occupies the same one, which is the standard assumption in invasive-species modelling and is not always true.</p>
+<p>The target group correction assumes Tephritidae recording effort resembles <em>B. dorsalis</em> recording effort. That is plausible and untested here.</p>
 <p><strong>The block size assumption is testable and was tested.</strong> Results at half and double the estimated autocorrelation range are written to <code>data/processed/block_sensitivity_summary.csv</code> by <code>03_analysis.R</code>.</p>
 <p><strong>Nothing here says anything about the future.</strong> No climate scenarios were run. Adding them would multiply the output without addressing the uncertainty this report has already found in the present-day fit.</p>
 </section>
 <section id="conclusion" class="level2" data-number="7">
 <h2 data-number="7" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">7</span> Conclusion</h2>
-<p>The suitability surface is unremarkable and broadly matches what is known about the species. The validation comparison is the part worth keeping.</p>
+<p>The suitability surface is unremarkable and broadly matches what is known about the species. The validation comparison is what is noteworthy.</p>
 <p>Reported the conventional way, this model has an AUC of 0.964 and would read as excellent. Reported honestly, it has an AUC of 0.790 with a standard deviation of 0.179, and performs close to chance in at least one region of the study area. Both numbers come from the same model, the same data and the same code. Only the way the folds were drawn differs.</p>
 <p>Species distribution models are among the most commonly submitted and most commonly over-claimed analyses in applied ecology. Where such a model informs surveillance priorities or phytosanitary decisions, the blocked figure is the one that should travel with it.</p>
 </section>

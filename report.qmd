@@ -56,12 +56,9 @@ model is scored under conventional random cross-validation and under folds separ
 Apparent performance falls from an AUC of 0.964 to 0.790, and TSS from 0.826 to 0.465. The
 standard deviation across folds grows by roughly a factor of thirty.
 
-That gap is the result. A model that loses little under spatial validation has learned climate.
-A model that loses a great deal has learned where entomologists have been working.
+If a model still works well when tested on new geographic areas, it actually understands the climate patterns. If it fails on new areas, it just memorized the map of where scientists prefer to look for bugs.
 
 ## What this model is, and is not
-
-The caution belongs before the findings rather than after them.
 
 This is a model of where climate resembles the climate at places where someone recorded this
 insect and uploaded the record. GBIF is a convenience sample, and recording effort follows
@@ -78,8 +75,6 @@ the countries with the least surveillance capacity, which is exactly where a sui
 would be most useful.
 
 ## Question
-
-Two halves, and the second is the one that matters.
 
 First, which climatic variables separate the localities where *B. dorsalis* has been recorded
 from the wider background, and what does the resulting suitability surface look like over West
@@ -98,7 +93,7 @@ The *B. dorsalis* download returned 11,757 georeferenced records with no flagged
 issue (DOI 10.15468/dl.jzyuk9). A second download returned 328,343 Tephritidae records
 excluding *B. dorsalis* (DOI 10.15468/dl.g9edqf), used later to build the background.
 
-Taxonomy matters here. *B. invadens*, the name under which the African invasion was first
+Taxonomy is an important factor here. *B. invadens*, the name under which the African invasion was first
 described, was synonymised with *B. dorsalis* in 2015 [@schutze2015]. Records filed under both
 names resolve to the same GBIF taxon key, so the African records are not lost.
 
@@ -179,7 +174,7 @@ both sides of the response.
 ### Models
 
 MaxEnt [@phillips2006; @elith2011] and a ridge-penalised logistic regression were both fitted.
-Ridge rather than lasso, because the retained predictors remain correlated after VIF screening,
+Ridge instead of lasso, because the retained predictors remain correlated after VIF screening,
 and ridge shrinks correlated coefficients together instead of arbitrarily selecting one.
 
 Two algorithms were run so that the validation result could not be dismissed as a quirk of one
@@ -191,13 +186,12 @@ Random five-fold cross-validation, stratified by response, provides the conventi
 Spatially blocked five-fold cross-validation provides the contrast [@valavi2019].
 
 Block size was taken from the empirical range of spatial autocorrelation in the predictors,
-estimated by variogram rather than chosen by eye. The blocked validation was then repeated at
+estimated by variogram. The blocked validation was then repeated at
 half and double that size, because the estimated range is one number with uncertainty around
-it, and a conclusion that only holds at one block size is not a conclusion.
+it.
 
 Three metrics are reported: AUC, TSS [@allouche2006], and the continuous Boyce index
-[@hirzel2006], the last being the one designed for presence-background rather than
-presence-absence data.
+[@hirzel2006], the last being the one designed for presence-background.
 
 Within every fold the classification threshold was taken from the training data at maximum
 sensitivity plus specificity, then applied to the held-out data. Taking it from the test data
@@ -219,14 +213,14 @@ MaxEnt loses 0.174 AUC, 0.361 TSS and 0.291 Boyce when folds are separated in sp
 loses 0.149, 0.300 and 0.315. Both algorithms fall by a similar amount, which is the useful
 part of having run two: the optimism belongs to the validation design, not to MaxEnt.
 
-The spread matters as much as the mean. Under random folds the five MaxEnt AUCs sit between
+The spread is equally as important as the mean. Under random folds the five MaxEnt AUCs sit between
 0.958 and 0.968, a standard deviation of 0.005. Under blocked folds they run 0.977, 0.553,
 0.692, 0.775 and 0.954, a standard deviation of 0.179. The model is excellent in some regions
 and close to uninformative in others. Random cross-validation reports none of that, because
 every fold contains near neighbours of its own training points, and a model only has to
 interpolate between them to score well [@roberts2017].
 
-An AUC of 0.553 on one blocked fold is not a failed run to be tuned away. It is the finding.
+An AUC of 0.553 on one blocked fold is not a failed run to be removed. It is a warning that the model has learned the map of where entomologists have been working, and that it cannot be trusted to extrapolate to new areas. The blocked validation is the one that should travel with the model if it is used to inform surveillance or phytosanitary decisions.
 
 ### Which predictors
 
@@ -241,11 +235,11 @@ kable(contribution_table)
 Wettest-month precipitation and annual mean temperature together account for just over four
 fifths of the contribution. That is consistent with the biology of a species that needs warmth
 and moist fruiting seasons. It is equally consistent with sampling bias, because people and
-their fruit trees also concentrate in warm, wet places, and the two explanations cannot be
+their fruit trees also concentrate in warm, wet places, however, the two explanations cannot be
 separated by this model.
 
 Percent contribution in MaxEnt is heuristic and depends on the order variables entered the fit.
-Read the table as a ranking, not as a partition of explained variance.
+The table should be read as a ranking, not as a partition of explained variance.
 
 ### Suitability surfaces
 
@@ -259,21 +253,14 @@ is not a simple south-to-north gradient. The highest values fall in the mid-coun
 the Black Volta and the Northern and Bono East areas, with a further pocket at the south-east
 coast, while the forest zone in the south-west returns middling values.
 
-The EPPO overlay is an external check rather than a validation. EPPO records reporting, not
-presence, so a country outlined as having no record is a country from which nobody has
-reported. Where the model predicts high suitability inside such a country, the map cannot
-distinguish a surveillance gap from a false positive. Read against the blocked-fold spread in
-@tbl-validation, that ambiguity should be taken seriously rather than resolved optimistically.
+The EPPO overlay is an external check. EPPO records reporting, not presence, so a country outlined as having no record is a country from which nobody has reported. Where the model predicts high suitability inside such a country, the map cannot distinguish a surveillance gap from a false positive. Read against the blocked-fold spread in @tbl-validation, that ambiguity should be taken seriously.
 
-## What would change the answer
+## Limitations
 
-**More African records would change it most.** 75 cleaned African records is thin for a
-continental projection. The model leans on the Asian native range for its climate envelope and
-assumes the invasive population occupies the same one, which is the standard assumption in
+75 cleaned African records is thin for a continental projection. The model leans on the Asian native range for its climate envelope and assumes the invasive population occupies the same one, which is the standard assumption in
 invasive-species modelling and is not always true.
 
-**A better background would change it next.** The target group correction assumes Tephritidae
-recording effort resembles *B. dorsalis* recording effort. That is plausible and untested here.
+The target group correction assumes Tephritidae recording effort resembles *B. dorsalis* recording effort. That is plausible and untested here.
 
 **The block size assumption is testable and was tested.** Results at half and double the
 estimated autocorrelation range are written to `data/processed/block_sensitivity_summary.csv`
@@ -286,7 +273,7 @@ the present-day fit.
 ## Conclusion
 
 The suitability surface is unremarkable and broadly matches what is known about the species.
-The validation comparison is the part worth keeping.
+The validation comparison is what is noteworthy.
 
 Reported the conventional way, this model has an AUC of 0.964 and would read as excellent.
 Reported honestly, it has an AUC of 0.790 with a standard deviation of 0.179, and performs
