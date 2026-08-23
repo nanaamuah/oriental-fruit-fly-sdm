@@ -1,0 +1,25 @@
+# Raw data
+data/raw/
+
+# Large reproducible intermediate
+data/processed/teph_clean.csv
+
+# Quarto cache
+.quarto/
+
+# R session files
+.Rhistory
+.RData
+.Ruserdata
+
+# renv local libraries
+renv/library/
+renv/staging/
+
+# Diagnostic plots not used as final outputs
+qc_plots/
+
+# Editor / OS files
+.vscode/
+.DS_Store
+Thumbs.db

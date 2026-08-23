@@ -1,0 +1,11 @@
+Rank,Predictor,Contribution
+1,BIO13: Wettest-month precipitation,50.7
+2,BIO1: Annual mean temperature,29.8
+3,BIO8: Temperature of wettest quarter,8.9
+4,BIO3: Isothermality,4
+5,BIO2: Mean diurnal range,2
+6,BIO18: Warmest-quarter precipitation,1.9
+7,BIO19: Coldest-quarter precipitation,1
+8,BIO9: Temperature of driest quarter,0.9
+9,BIO15: Precipitation seasonality,0.6
+10,BIO14: Driest-month precipitation,0.3

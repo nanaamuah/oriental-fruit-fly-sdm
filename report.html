@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Immanuel Nana Amuah">
+<meta name="dcterms.date" content="2026-08-23">
+
+<title>Climatic suitability for the oriental fruit fly across West Africa</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="report_files/libs/clipboard/clipboard.min.js"></script>
+<script src="report_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="report_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="report_files/libs/quarto-html/popper.min.js"></script>
+<script src="report_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="report_files/libs/quarto-html/anchor.min.js"></script>
+<link href="report_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="report_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="report_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="report_files/libs/bootstrap/bootstrap-f6e79608285ffc1d0ff5ec47178fa595.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#summary" id="toc-summary" class="nav-link active" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#what-this-model-is-and-is-not" id="toc-what-this-model-is-and-is-not" class="nav-link" data-scroll-target="#what-this-model-is-and-is-not"><span class="header-section-number">1</span> What this model is, and is not</a></li>
+  <li><a href="#question" id="toc-question" class="nav-link" data-scroll-target="#question"><span class="header-section-number">2</span> Question</a></li>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data"><span class="header-section-number">3</span> Data</a>
+  <ul class="collapse">
+  <li><a href="#occurrence-records" id="toc-occurrence-records" class="nav-link" data-scroll-target="#occurrence-records"><span class="header-section-number">3.1</span> Occurrence records</a></li>
+  <li><a href="#predictors" id="toc-predictors" class="nav-link" data-scroll-target="#predictors"><span class="header-section-number">3.2</span> Predictors</a></li>
+  <li><a href="#cleaning" id="toc-cleaning" class="nav-link" data-scroll-target="#cleaning"><span class="header-section-number">3.3</span> Cleaning</a></li>
+  <li><a href="#the-stopping-rule" id="toc-the-stopping-rule" class="nav-link" data-scroll-target="#the-stopping-rule"><span class="header-section-number">3.4</span> The stopping rule</a></li>
+  </ul></li>
+  <li><a href="#method" id="toc-method" class="nav-link" data-scroll-target="#method"><span class="header-section-number">4</span> Method</a>
+  <ul class="collapse">
+  <li><a href="#predictor-screening" id="toc-predictor-screening" class="nav-link" data-scroll-target="#predictor-screening"><span class="header-section-number">4.1</span> Predictor screening</a></li>
+  <li><a href="#background" id="toc-background" class="nav-link" data-scroll-target="#background"><span class="header-section-number">4.2</span> Background</a></li>
+  <li><a href="#models" id="toc-models" class="nav-link" data-scroll-target="#models"><span class="header-section-number">4.3</span> Models</a></li>
+  <li><a href="#validation" id="toc-validation" class="nav-link" data-scroll-target="#validation"><span class="header-section-number">4.4</span> Validation</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results"><span class="header-section-number">5</span> Results</a>
+  <ul class="collapse">
+  <li><a href="#the-validation-comparison" id="toc-the-validation-comparison" class="nav-link" data-scroll-target="#the-validation-comparison"><span class="header-section-number">5.1</span> The validation comparison</a></li>
+  <li><a href="#which-predictors" id="toc-which-predictors" class="nav-link" data-scroll-target="#which-predictors"><span class="header-section-number">5.2</span> Which predictors</a></li>
+  <li><a href="#suitability-surfaces" id="toc-suitability-surfaces" class="nav-link" data-scroll-target="#suitability-surfaces"><span class="header-section-number">5.3</span> Suitability surfaces</a></li>
+  </ul></li>
+  <li><a href="#what-would-change-the-answer" id="toc-what-would-change-the-answer" class="nav-link" data-scroll-target="#what-would-change-the-answer"><span class="header-section-number">6</span> What would change the answer</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">7</span> Conclusion</a></li>
+  <li><a href="#data-and-code-availability" id="toc-data-and-code-availability" class="nav-link" data-scroll-target="#data-and-code-availability"><span class="header-section-number">8</span> Data and code availability</a></li>
+  <li><a href="#software" id="toc-software" class="nav-link" data-scroll-target="#software"><span class="header-section-number">9</span> Software</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Climatic suitability for the oriental fruit fly across West Africa</h1>
+<p class="subtitle lead">How much of a species distribution model survives spatial cross-validation</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Immanuel Nana Amuah </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 23, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="summary">Summary</h2>
+<p><em>Bactrocera dorsalis</em> was first detected in Africa in 2003 and had reached 35 sub-Saharan countries within fifteen years <span class="citation" data-cites="mutamiswa2021">(<a href="#ref-mutamiswa2021" role="doc-biblioref">Mutamiswa et al., 2021</a>)</span>. It is a regulated quarantine pest in the markets West African horticulture sells into, and its recorded distribution is now dense enough to model.</p>
+<p>This report fits a climatic suitability model for the species across West Africa from 1,089 cleaned public occurrence records, and then does the thing that is usually left out. The same model is scored under conventional random cross-validation and under folds separated in space. Apparent performance falls from an AUC of 0.964 to 0.790, and TSS from 0.826 to 0.465. The standard deviation across folds grows by roughly a factor of thirty.</p>
+<p>That gap is the result. A model that loses little under spatial validation has learned climate. A model that loses a great deal has learned where entomologists have been working.</p>
+</section>
+<section id="what-this-model-is-and-is-not" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="what-this-model-is-and-is-not"><span class="header-section-number">1</span> What this model is, and is not</h2>
+<p>The caution belongs before the findings rather than after them.</p>
+<p>This is a model of where climate resembles the climate at places where someone recorded this insect and uploaded the record. GBIF is a convenience sample, and recording effort follows funded projects, road networks and institutional interest <span class="citation" data-cites="zizka2019">(<a href="#ref-zizka2019" role="doc-biblioref">Zizka et al., 2019</a>)</span>. The target-group background used here reduces that distortion <span class="citation" data-cites="phillips2009">(<a href="#ref-phillips2009" role="doc-biblioref">Phillips et al., 2009</a>)</span> but does not remove it.</p>
+<p>A climate-only model omits host availability, irrigation, trade pathways, natural enemies and management, all of which decide whether a climatically suitable place is actually infested. MaxEnt output is a relative suitability index, not a probability of presence <span class="citation" data-cites="elith2011">(<a href="#ref-elith2011" role="doc-biblioref">Elith et al., 2011</a>)</span>, and thresholding it into a binary map imposes a decision the model does not contain.</p>
+<p>Absence of records from a country is not absence of the pest. That asymmetry falls hardest on the countries with the least surveillance capacity, which is exactly where a suitability map would be most useful.</p>
+</section>
+<section id="question" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="question"><span class="header-section-number">2</span> Question</h2>
+<p>Two halves, and the second is the one that matters.</p>
+<p>First, which climatic variables separate the localities where <em>B. dorsalis</em> has been recorded from the wider background, and what does the resulting suitability surface look like over West Africa and over Ghana?</p>
+<p>Second, when the model is validated on spatially separated blocks rather than randomly held-out points, so that it can no longer score itself on the neighbourhood it was trained in, how far does its apparent performance fall?</p>
+</section>
+<section id="data" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="data"><span class="header-section-number">3</span> Data</h2>
+<section id="occurrence-records" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="occurrence-records"><span class="header-section-number">3.1</span> Occurrence records</h3>
+<p>Records were retrieved through the GBIF download API, which mints a citable DOI for each query. The <em>B. dorsalis</em> download returned 11,757 georeferenced records with no flagged geospatial issue (DOI 10.15468/dl.jzyuk9). A second download returned 328,343 Tephritidae records excluding <em>B. dorsalis</em> (DOI 10.15468/dl.g9edqf), used later to build the background.</p>
+<p>Taxonomy matters here. <em>B. invadens</em>, the name under which the African invasion was first described, was synonymised with <em>B. dorsalis</em> in 2015 <span class="citation" data-cites="schutze2015">(<a href="#ref-schutze2015" role="doc-biblioref"><span class="nocase">Schutze et al.</span>, 2015</a>)</span>. Records filed under both names resolve to the same GBIF taxon key, so the African records are not lost.</p>
+</section>
+<section id="predictors" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="predictors"><span class="header-section-number">3.2</span> Predictors</h3>
+<p>Nineteen bioclimatic variables from WorldClim v2.1 at 2.5 arc-minutes <span class="citation" data-cites="fick2017">(<a href="#ref-fick2017" role="doc-biblioref">Fick &amp; Hijmans, 2017</a>)</span>. That resolution is roughly 4.5 km at the equator, which is finer than the occurrence data can support once thinned, and coarse enough to keep the prediction step to seconds.</p>
+</section>
+<section id="cleaning" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="cleaning"><span class="header-section-number">3.3</span> Cleaning</h3>
+<div class="cell">
+<div id="tbl-cleaning" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cleaning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Records retained at each cleaning stage.
+</figcaption>
+<div aria-describedby="tbl-cleaning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Stage</th>
+<th style="text-align: right;">Records</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Raw GBIF occurrences</td>
+<td style="text-align: right;">11,757</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">After coordinate artefact filtering</td>
+<td style="text-align: right;">11,709</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">After removing occurrences without WorldClim coverage</td>
+<td style="text-align: right;">11,563</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">After thinning to one occurrence per WorldClim cell</td>
+<td style="text-align: right;">1,089</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Five CoordinateCleaner tests were applied: administrative centroids, identical latitude and longitude, the GBIF office in Copenhagen, biodiversity institution addresses, and exact zeros <span class="citation" data-cites="zizka2019">(<a href="#ref-zizka2019" role="doc-biblioref">Zizka et al., 2019</a>)</span>. These flagged 35 centroids and 16 institutions, three records being caught by both, for a loss of 48.</p>
+<p>Two tests were deliberately not used as deletion criteria. The capital-city test flagged 433 records, most of them plausible urban observations of a pest that thrives in backyard fruit trees. The sea test proved highly sensitive to coastline resolution. Neither is specific enough to delete on, so whether a location could enter a climatic model was settled instead by whether WorldClim returned a value for it. That removed a further 146 records.</p>
+<p>Exact-coordinate duplicates were not filtered separately. 856 coordinates carried repeated records, 10,343 records in total, one coordinate holding 351. Thinning to one record per WorldClim cell handles both exact repeats and distinct coordinates carrying identical climate values, which left 1,089 presences.</p>
+<p>The Tephritidae background passed through the same five tests, 328,343 down to 324,912, and the same cell-level thinning. Presences and background have to be cleaned identically, or a difference the model finds between them could be an artefact of the cleaning.</p>
+</section>
+<section id="the-stopping-rule" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="the-stopping-rule"><span class="header-section-number">3.4</span> The stopping rule</h3>
+<p>A checkpoint was set before fitting began: if the cleaned African records occupied fewer than about 25 distinct 100 km cells, the model would be describing a few field campaigns rather than a climate envelope, and the species would be switched to <em>Spodoptera frugiperda</em>.</p>
+<p>75 cleaned African records fell in 75 distinct 100 km cells. The threshold was cleared.</p>
+<p>The sparseness is still worth stating plainly. 75 African records, after cleaning, for a pest established across 35 countries. The model is therefore fitted on the global record and projected onto West Africa, rather than fitted on African records alone.</p>
+</section>
+</section>
+<section id="method" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="method"><span class="header-section-number">4</span> Method</h2>
+<section id="predictor-screening" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="predictor-screening"><span class="header-section-number">4.1</span> Predictor screening</h3>
+<p>Variables were dropped one at a time by variance inflation factor until every remaining variable fell below a VIF of 10. Ten survived: BIO1, BIO2, BIO3, BIO8, BIO9, BIO13, BIO14, BIO15, BIO18 and BIO19.</p>
+<p>Screening was run on the West African stack rather than the global one. Collinearity between bioclimatic variables is regional, and two variables that separate cleanly worldwide can be near-identical across West Africa alone. Screening globally would have retained variables that are redundant in the area being predicted.</p>
+</section>
+<section id="background" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="background"><span class="header-section-number">4.2</span> Background</h3>
+<p>10,000 background points were drawn from the recorded locations of other Tephritidae, excluding any cell holding a <em>B. dorsalis</em> presence.</p>
+<p>The reasoning is the target-group argument <span class="citation" data-cites="phillips2009">(<a href="#ref-phillips2009" role="doc-biblioref">Phillips et al., 2009</a>)</span>. Fruit flies are collected by the same traps, in the same orchards, by the same people. Where other Tephritidae were recorded is therefore an approximation of where anyone was looking. Drawing background from those locations means the model is asked to separate presences from other surveyed places, rather than from unsurveyed wilderness. A uniform random background would have handed the model a map of survey effort and allowed it to report the result as climate.</p>
+<p>Cells holding a presence were excluded from the background to avoid putting the same cell on both sides of the response.</p>
+</section>
+<section id="models" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="models"><span class="header-section-number">4.3</span> Models</h3>
+<p>MaxEnt <span class="citation" data-cites="phillips2006 elith2011">(<a href="#ref-elith2011" role="doc-biblioref">Elith et al., 2011</a>; <a href="#ref-phillips2006" role="doc-biblioref">Phillips et al., 2006</a>)</span> and a ridge-penalised logistic regression were both fitted. Ridge rather than lasso, because the retained predictors remain correlated after VIF screening, and ridge shrinks correlated coefficients together instead of arbitrarily selecting one.</p>
+<p>Two algorithms were run so that the validation result could not be dismissed as a quirk of one fitting procedure.</p>
+</section>
+<section id="validation" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="validation"><span class="header-section-number">4.4</span> Validation</h3>
+<p>Random five-fold cross-validation, stratified by response, provides the conventional baseline. Spatially blocked five-fold cross-validation provides the contrast <span class="citation" data-cites="valavi2019">(<a href="#ref-valavi2019" role="doc-biblioref">Valavi et al., 2019</a>)</span>.</p>
+<p>Block size was taken from the empirical range of spatial autocorrelation in the predictors, estimated by variogram rather than chosen by eye. The blocked validation was then repeated at half and double that size, because the estimated range is one number with uncertainty around it, and a conclusion that only holds at one block size is not a conclusion.</p>
+<p>Three metrics are reported: AUC, TSS <span class="citation" data-cites="allouche2006">(<a href="#ref-allouche2006" role="doc-biblioref">Allouche et al., 2006</a>)</span>, and the continuous Boyce index <span class="citation" data-cites="hirzel2006">(<a href="#ref-hirzel2006" role="doc-biblioref">Hirzel et al., 2006</a>)</span>, the last being the one designed for presence-background rather than presence-absence data.</p>
+<p>Within every fold the classification threshold was taken from the training data at maximum sensitivity plus specificity, then applied to the held-out data. Taking it from the test data would let the threshold adapt to the answer and would conceal the effect being measured.</p>
+</section>
+</section>
+<section id="results" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="results"><span class="header-section-number">5</span> Results</h2>
+<section id="the-validation-comparison" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="the-validation-comparison"><span class="header-section-number">5.1</span> The validation comparison</h3>
+<div class="cell">
+<div id="tbl-validation" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-validation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Cross-validation performance under random and spatially blocked folds. Mean and standard deviation across five folds. Drop is the random-fold mean minus the spatial-fold mean.
+</figcaption>
+<div aria-describedby="tbl-validation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 11%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Algorithm</th>
+<th style="text-align: left;">Validation</th>
+<th style="text-align: left;">AUC</th>
+<th style="text-align: left;">TSS</th>
+<th style="text-align: left;">Boyce</th>
+<th style="text-align: left;">AUC drop</th>
+<th style="text-align: left;">TSS drop</th>
+<th style="text-align: left;">Boyce drop</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">GLM</td>
+<td style="text-align: left;">Random</td>
+<td style="text-align: left;">0.947 ± 0.006</td>
+<td style="text-align: left;">0.807 ± 0.010</td>
+<td style="text-align: left;">0.951 ± 0.024</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GLM</td>
+<td style="text-align: left;">Spatial</td>
+<td style="text-align: left;">0.798 ± 0.167</td>
+<td style="text-align: left;">0.507 ± 0.371</td>
+<td style="text-align: left;">0.637 ± 0.414</td>
+<td style="text-align: left;">0.149</td>
+<td style="text-align: left;">0.300</td>
+<td style="text-align: left;">0.315</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MaxEnt</td>
+<td style="text-align: left;">Random</td>
+<td style="text-align: left;">0.964 ± 0.005</td>
+<td style="text-align: left;">0.826 ± 0.014</td>
+<td style="text-align: left;">0.984 ± 0.014</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MaxEnt</td>
+<td style="text-align: left;">Spatial</td>
+<td style="text-align: left;">0.790 ± 0.179</td>
+<td style="text-align: left;">0.465 ± 0.306</td>
+<td style="text-align: left;">0.693 ± 0.437</td>
+<td style="text-align: left;">0.174</td>
+<td style="text-align: left;">0.361</td>
+<td style="text-align: left;">0.291</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div id="fig-validation" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-validation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="outputs/figures/validation_plot.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-validation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Validation scores by scheme, algorithm and metric. Small points are individual folds; large points and error bars are mean and standard deviation.
+</figcaption>
+</figure>
+</div>
+<p>MaxEnt loses 0.174 AUC, 0.361 TSS and 0.291 Boyce when folds are separated in space. The GLM loses 0.149, 0.300 and 0.315. Both algorithms fall by a similar amount, which is the useful part of having run two: the optimism belongs to the validation design, not to MaxEnt.</p>
+<p>The spread matters as much as the mean. Under random folds the five MaxEnt AUCs sit between 0.958 and 0.968, a standard deviation of 0.005. Under blocked folds they run 0.977, 0.553, 0.692, 0.775 and 0.954, a standard deviation of 0.179. The model is excellent in some regions and close to uninformative in others. Random cross-validation reports none of that, because every fold contains near neighbours of its own training points, and a model only has to interpolate between them to score well <span class="citation" data-cites="roberts2017">(<a href="#ref-roberts2017" role="doc-biblioref">Roberts et al., 2017</a>)</span>.</p>
+<p>An AUC of 0.553 on one blocked fold is not a failed run to be tuned away. It is the finding.</p>
+</section>
+<section id="which-predictors" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="which-predictors"><span class="header-section-number">5.2</span> Which predictors</h3>
+<div class="cell">
+<div id="tbl-contribution" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-contribution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: MaxEnt percent contribution by predictor.
+</figcaption>
+<div aria-describedby="tbl-contribution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Rank</th>
+<th style="text-align: left;">Predictor</th>
+<th style="text-align: right;">Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">BIO13: Wettest-month precipitation</td>
+<td style="text-align: right;">50.7</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">BIO1: Annual mean temperature</td>
+<td style="text-align: right;">29.8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">BIO8: Temperature of wettest quarter</td>
+<td style="text-align: right;">8.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">BIO3: Isothermality</td>
+<td style="text-align: right;">4.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">BIO2: Mean diurnal range</td>
+<td style="text-align: right;">2.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">BIO18: Warmest-quarter precipitation</td>
+<td style="text-align: right;">1.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">BIO19: Coldest-quarter precipitation</td>
+<td style="text-align: right;">1.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">BIO9: Temperature of driest quarter</td>
+<td style="text-align: right;">0.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: left;">BIO15: Precipitation seasonality</td>
+<td style="text-align: right;">0.6</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">BIO14: Driest-month precipitation</td>
+<td style="text-align: right;">0.3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div id="fig-response" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-response-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="outputs/figures/maxent_response_curves.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-response-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: MaxEnt response curves for the ten retained predictors. Axes vary among panels to show the shape of each response.
+</figcaption>
+</figure>
+</div>
+<p>Wettest-month precipitation and annual mean temperature together account for just over four fifths of the contribution. That is consistent with the biology of a species that needs warmth and moist fruiting seasons. It is equally consistent with sampling bias, because people and their fruit trees also concentrate in warm, wet places, and the two explanations cannot be separated by this model.</p>
+<p>Percent contribution in MaxEnt is heuristic and depends on the order variables entered the fit. Read the table as a ranking, not as a partition of explained variance.</p>
+</section>
+<section id="suitability-surfaces" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="suitability-surfaces"><span class="header-section-number">5.3</span> Suitability surfaces</h3>
+<div id="fig-wa" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-wa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="outputs/maps/west_africa_suitability_plot.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-wa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Modelled climatic suitability across West Africa. Country outlines are coloured by EPPO recorded distribution, which never entered the model.
+</figcaption>
+</figure>
+</div>
+<div id="fig-ghana" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ghana-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="outputs/maps/ghana_maxent_suitability.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ghana-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Modelled climatic suitability across Ghana.
+</figcaption>
+</figure>
+</div>
+<p>The regional surface separates the Sahelian north, which the model treats as unsuitable, from the coastal and Guinea savanna belt running along the Gulf of Guinea. Within Ghana the pattern is not a simple south-to-north gradient. The highest values fall in the mid-country belt around the Black Volta and the Northern and Bono East areas, with a further pocket at the south-east coast, while the forest zone in the south-west returns middling values.</p>
+<p>The EPPO overlay is an external check rather than a validation. EPPO records reporting, not presence, so a country outlined as having no record is a country from which nobody has reported. Where the model predicts high suitability inside such a country, the map cannot distinguish a surveillance gap from a false positive. Read against the blocked-fold spread in <a href="#tbl-validation" class="quarto-xref">Table&nbsp;2</a>, that ambiguity should be taken seriously rather than resolved optimistically.</p>
+</section>
+</section>
+<section id="what-would-change-the-answer" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="what-would-change-the-answer"><span class="header-section-number">6</span> What would change the answer</h2>
+<p><strong>More African records would change it most.</strong> 75 cleaned African records is thin for a continental projection. The model leans on the Asian native range for its climate envelope and assumes the invasive population occupies the same one, which is the standard assumption in invasive-species modelling and is not always true.</p>
+<p><strong>A better background would change it next.</strong> The target group correction assumes Tephritidae recording effort resembles <em>B. dorsalis</em> recording effort. That is plausible and untested here.</p>
+<p><strong>The block size assumption is testable and was tested.</strong> Results at half and double the estimated autocorrelation range are written to <code>data/processed/block_sensitivity_summary.csv</code> by <code>03_analysis.R</code>.</p>
+<p><strong>Nothing here says anything about the future.</strong> No climate scenarios were run. Adding them would multiply the output without addressing the uncertainty this report has already found in the present-day fit.</p>
+</section>
+<section id="conclusion" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">7</span> Conclusion</h2>
+<p>The suitability surface is unremarkable and broadly matches what is known about the species. The validation comparison is the part worth keeping.</p>
+<p>Reported the conventional way, this model has an AUC of 0.964 and would read as excellent. Reported honestly, it has an AUC of 0.790 with a standard deviation of 0.179, and performs close to chance in at least one region of the study area. Both numbers come from the same model, the same data and the same code. Only the way the folds were drawn differs.</p>
+<p>Species distribution models are among the most commonly submitted and most commonly over-claimed analyses in applied ecology. Where such a model informs surveillance priorities or phytosanitary decisions, the blocked figure is the one that should travel with it.</p>
+</section>
+<section id="data-and-code-availability" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="data-and-code-availability"><span class="header-section-number">8</span> Data and code availability</h2>
+<p>Occurrence data are archived at GBIF under DOIs 10.15468/dl.jzyuk9 and 10.15468/dl.g9edqf. Climate data are WorldClim v2.1, CC BY-SA 4.0. Distribution records are from the EPPO Global Database (taxon DACUDO). Analysis code and package versions are in the repository; see <code>README.md</code> for the run order and for the reproducibility caveats.</p>
+</section>
+<section id="software" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="software"><span class="header-section-number">9</span> Software</h2>
+<p>Analysis in R 4.6.1. Occurrence retrieval with <strong>rgbif</strong>, cleaning with <strong>CoordinateCleaner</strong> 3.0.1 <span class="citation" data-cites="zizka2019">(<a href="#ref-zizka2019" role="doc-biblioref">Zizka et al., 2019</a>)</span>, raster handling with <strong>terra</strong>, predictor download with <strong>geodata</strong>, collinearity screening with <strong>usdm</strong>, modelling with <strong>predicts</strong> and <strong>glmnet</strong>, spatial cross-validation with <strong>blockCV</strong> 3.2-0 <span class="citation" data-cites="valavi2019">(<a href="#ref-valavi2019" role="doc-biblioref">Valavi et al., 2019</a>)</span>, the Boyce index with <strong>modEvA</strong>, and figures with <strong>ggplot2</strong> and <strong>sf</strong>.</p>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-allouche2006" class="csl-entry" role="listitem">
+Allouche, O., Tsoar, A., &amp; Kadmon, R. (2006). Assessing the accuracy of species distribution models: Prevalence, kappa and the true skill statistic (<span>TSS</span>). <em>Journal of Applied Ecology</em>, <em>43</em>(6), 1223–1232. <a href="https://doi.org/10.1111/j.1365-2664.2006.01214.x">https://doi.org/10.1111/j.1365-2664.2006.01214.x</a>
+</div>
+<div id="ref-elith2011" class="csl-entry" role="listitem">
+Elith, J., Phillips, S. J., Hastie, T., Dudík, M., Chee, Y. E., &amp; Yates, C. J. (2011). A statistical explanation of <span>MaxEnt</span> for ecologists. <em>Diversity and Distributions</em>, <em>17</em>(1), 43–57. <a href="https://doi.org/10.1111/j.1472-4642.2010.00725.x">https://doi.org/10.1111/j.1472-4642.2010.00725.x</a>
+</div>
+<div id="ref-fick2017" class="csl-entry" role="listitem">
+Fick, S. E., &amp; Hijmans, R. J. (2017). <span>WorldClim</span> 2: New 1-km spatial resolution climate surfaces for global land areas. <em>International Journal of Climatology</em>, <em>37</em>(12), 4302–4315. <a href="https://doi.org/10.1002/joc.5086">https://doi.org/10.1002/joc.5086</a>
+</div>
+<div id="ref-hirzel2006" class="csl-entry" role="listitem">
+Hirzel, A. H., Le Lay, G., Helfer, V., Randin, C., &amp; Guisan, A. (2006). Evaluating the ability of habitat suitability models to predict species presences. <em>Ecological Modelling</em>, <em>199</em>(2), 142–152.
+</div>
+<div id="ref-mutamiswa2021" class="csl-entry" role="listitem">
+Mutamiswa, R., Nyamukondiwa, C., Chikowore, G., &amp; Chidawanyika, F. (2021). Overview of oriental fruit fly, <span><em>Bactrocera dorsalis</em></span> (<span>Hendel</span>) (<span>Diptera</span>: <span>Tephritidae</span>) in <span>Africa</span>: From invasion, bio-ecology to sustainable management. <em>Crop Protection</em>, <em>141</em>, 105492. <a href="https://doi.org/10.1016/j.cropro.2020.105492">https://doi.org/10.1016/j.cropro.2020.105492</a>
+</div>
+<div id="ref-phillips2006" class="csl-entry" role="listitem">
+Phillips, S. J., Anderson, R. P., &amp; Schapire, R. E. (2006). Maximum entropy modeling of species geographic distributions. <em>Ecological Modelling</em>, <em>190</em>(3-4), 231–259. <a href="https://doi.org/10.1016/j.ecolmodel.2005.03.026">https://doi.org/10.1016/j.ecolmodel.2005.03.026</a>
+</div>
+<div id="ref-phillips2009" class="csl-entry" role="listitem">
+Phillips, S. J., Dudík, M., Elith, J., Graham, C. H., Lehmann, A., Leathwick, J., &amp; Ferrier, S. (2009). Sample selection bias and presence-only distribution models: Implications for background and pseudo-absence data. <em>Ecological Applications</em>, <em>19</em>(1), 181–197. <a href="https://doi.org/10.1890/07-2153.1">https://doi.org/10.1890/07-2153.1</a>
+</div>
+<div id="ref-roberts2017" class="csl-entry" role="listitem">
+Roberts, D. R., Bahn, V., Ciuti, S., Boyce, M. S., Elith, J., Guillera-Arroita, G., Hauenstein, S., Lahoz-Monfort, J. J., Schröder, B., Thuiller, W., Warton, D. I., Wintle, B. A., Hartig, F., &amp; Dormann, C. F. (2017). Cross-validation strategies for data with temporal, spatial, hierarchical, or phylogenetic structure. <em>Ecography</em>, <em>40</em>(8), 913–929. <a href="https://doi.org/10.1111/ecog.02881">https://doi.org/10.1111/ecog.02881</a>
+</div>
+<div id="ref-schutze2015" class="csl-entry" role="listitem">
+<span class="nocase">Schutze, M. K., Aketarawong, N., Amornsak, W., Armstrong, K. F., Augustinos, A. A., Barr, N., Bo, W., Bourtzis, K., Boykin, L. M., Cáceres, C., Cameron, S. L., et al.</span> (2015). Synonymization of key pest species within the <span><em>Bactrocera dorsalis</em></span> species complex (<span>Diptera</span>: <span>Tephritidae</span>): Taxonomic changes based on a review of 20 years of integrative morphological, molecular, cytogenetic, behavioural and chemoecological data. <em>Systematic Entomology</em>, <em>40</em>(2), 456–471. <a href="https://doi.org/10.1111/syen.12113">https://doi.org/10.1111/syen.12113</a>
+</div>
+<div id="ref-valavi2019" class="csl-entry" role="listitem">
+Valavi, R., Elith, J., Lahoz-Monfort, J. J., &amp; Guillera-Arroita, G. (2019). <span class="nocase">blockCV</span>: An <span>R</span> package for generating spatially or environmentally separated folds for k-fold cross-validation of species distribution models. <em>Methods in Ecology and Evolution</em>, <em>10</em>(2), 225–232. <a href="https://doi.org/10.1111/2041-210X.13107">https://doi.org/10.1111/2041-210X.13107</a>
+</div>
+<div id="ref-zizka2019" class="csl-entry" role="listitem">
+Zizka, A., Silvestro, D., Andermann, T., Azevedo, J., Duarte Ritter, C., Edler, D., Farooq, H., Herdean, A., Ariza, M., Scharn, R., Svantesson, S., Wengström, N., Zizka, V., &amp; Antonelli, A. (2019). <span>CoordinateCleaner</span>: Standardized cleaning of occurrence records from biological collection databases. <em>Methods in Ecology and Evolution</em>, <em>10</em>(5), 744–751. <a href="https://doi.org/10.1111/2041-210X.13152">https://doi.org/10.1111/2041-210X.13152</a>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
