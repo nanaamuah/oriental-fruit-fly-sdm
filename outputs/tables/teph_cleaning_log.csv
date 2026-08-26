@@ -1,0 +1,5 @@
+stage,records
+Raw Tephritidae GBIF occurrences,328343
+After coordinate artefact filtering,324912
+After removing occurrences without WorldClim coverage,322012
+After thinning to one occurrence per WorldClim cell,52707

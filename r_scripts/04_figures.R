@@ -462,3 +462,126 @@ write_csv(
   variable_contribution_table,
   here("outputs", "tables", "maxent_variable_contribution.csv")
 )
+
+
+# Section 9: Write the remaining tables the report reads
+# Everything the report renders from has to live in outputs/tables, because that is the
+# folder tracked as a finished product. Pointing a reader at a path under data/processed
+# leaves the claim unverifiable for anyone who has not run the pipeline.
+
+# Section 9.1: Fold composition
+# The between-fold spread in Section 4 is the headline of this project, and it cannot be
+# read without knowing how many presences each fold held. A blocked fold carrying few
+# presences returns an unstable AUC for a reason that has nothing to do with the model.
+fold_composition_table <- cv_results %>%
+  filter(model == "MaxEnt") %>%
+  mutate(
+    Validation = recode(validation, random = "Random", spatial = "Spatial"),
+    Fold = fold,
+    Presences = n_presence,
+    Background = n_background,
+    AUC = round(AUC, 3),
+    TSS = round(TSS, 3),
+    Boyce = round(Boyce, 3)
+  ) %>%
+  select(
+    Validation,
+    Fold,
+    Presences,
+    Background,
+    AUC,
+    TSS,
+    Boyce
+  ) %>%
+  arrange(factor(Validation, levels = c("Random", "Spatial")), Fold)
+
+print(fold_composition_table)
+
+write_csv(
+  fold_composition_table,
+  here("outputs", "tables", "fold_composition.csv")
+)
+
+# The full fold-level results for both algorithms, so the summary in Section 4 can be
+# recomputed by anyone who wants to check it.
+write_csv(
+  cv_results,
+  here("outputs", "tables", "cv_fold_results.csv")
+)
+
+write_csv(
+  cv_summary,
+  here("outputs", "tables", "cv_summary.csv")
+)
+
+
+# Section 9.2: Block size sensitivity
+# The blocked validation was repeated at half and double the estimated autocorrelation
+# range. Running that test and then not reporting its result leaves the block size looking
+# like an unexamined choice, so the summary is written out as a finished table.
+block_size_record <- read_csv(
+  here("data", "processed", "block_size_record.csv"),
+  show_col_types = FALSE
+)
+
+block_sensitivity_summary <- read_csv(
+  here("data", "processed", "block_sensitivity_summary.csv"),
+  show_col_types = FALSE
+)
+
+block_sensitivity_table <- block_sensitivity_summary %>%
+  left_join(
+    select(block_size_record, block_size, size_km),
+    by = "block_size"
+  ) %>%
+  mutate(
+    `Block size` = recode(
+      block_size,
+      half = "Half the estimated range",
+      selected = "Estimated range",
+      double = "Twice the estimated range"
+    ),
+    `Size (km)` = size_km,
+    AUC = sprintf("%.3f ± %.3f", mean_AUC, sd_AUC),
+    TSS = sprintf("%.3f ± %.3f", mean_TSS, sd_TSS),
+    Boyce = sprintf("%.3f ± %.3f", mean_Boyce, sd_Boyce)
+  ) %>%
+  select(
+    `Block size`,
+    `Size (km)`,
+    AUC,
+    TSS,
+    Boyce
+  ) %>%
+  arrange(`Size (km)`)
+
+print(block_sensitivity_table)
+
+write_csv(
+  block_sensitivity_table,
+  here("outputs", "tables", "block_size_sensitivity.csv")
+)
+
+
+# Section 9.3: Cleaning logs
+# The report tabulates the presence cleaning log and quotes the background one. Both are
+# copied here so the report renders from tracked outputs rather than from an intermediate.
+cleaning_log <- read_csv(
+  here("data", "processed", "cleaning_log.csv"),
+  show_col_types = FALSE
+)
+
+teph_cleaning_log <- read_csv(
+  here("data", "processed", "teph_cleaning_log.csv"),
+  show_col_types = FALSE
+)
+
+write_csv(
+  cleaning_log,
+  here("outputs", "tables", "cleaning_log.csv")
+)
+
+write_csv(
+  teph_cleaning_log,
+  here("outputs", "tables", "teph_cleaning_log.csv")
+)

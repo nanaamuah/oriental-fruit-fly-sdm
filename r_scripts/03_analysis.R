@@ -224,6 +224,17 @@ sf_use_s2(TRUE) # Re-enable s2 geometry for other spatial operations
 
 print(auto_cor[c("range", "range_table")])
 
+# The block size is a number the reader needs in order to judge the blocked design, so it
+# is written out rather than left inside an object in the session. cv_spatial_autocor
+# returns the range in the units of the projection, which is metres under EPSG:6933.
+block_size_record <- tibble::tibble(
+  block_size = c("half", "selected", "double"),
+  size_m = c(auto_cor$range / 2, auto_cor$range, auto_cor$range * 2)
+) %>%
+  dplyr::mutate(size_km = round(size_m / 1000, 1))
+
+print(block_size_record)
+
 # presence_bg = TRUE tells blockCV that response 0 is background rather than absence, so
 # it balances presences across folds instead of treating the classes symmetrically.
 # iteration = 100 lets it try 100 block-to-fold assignments and keep the most balanced.
@@ -326,6 +337,8 @@ for (i in 1:5) {
     validation = "random",
     model = "MaxEnt",
     fold = i,
+    n_presence = length(pred_presence),
+    n_background = length(pred_background),
     AUC = auc_value,
     threshold = fold_threshold,
     sensitivity = sensitivity,
@@ -414,6 +427,8 @@ for (i in 1:5) {
     validation = "spatial",
     model = "MaxEnt",
     fold = i,
+    n_presence = length(pred_presence),
+    n_background = length(pred_background),
     AUC = auc_value,
     threshold = fold_threshold,
     sensitivity = sensitivity,
@@ -546,6 +561,8 @@ for (i in 1:5) {
     validation = "spatial",
     model = "MaxEnt",
     fold = i,
+    n_presence = length(pred_presence),
+    n_background = length(pred_background),
     AUC = auc_value,
     threshold = fold_threshold,
     sensitivity = sensitivity,
@@ -647,6 +664,8 @@ for (i in 1:5) {
     validation = "spatial",
     model = "MaxEnt",
     fold = i,
+    n_presence = length(pred_presence),
+    n_background = length(pred_background),
     AUC = auc_value,
     threshold = fold_threshold,
     sensitivity = sensitivity,
@@ -773,6 +792,8 @@ for (i in 1:5) {
     validation = "random",
     model = "GLM",
     fold = i,
+    n_presence = length(pred_presence),
+    n_background = length(pred_background),
     AUC = auc_value,
     threshold = fold_threshold,
     sensitivity = sensitivity,
@@ -873,6 +894,8 @@ for (i in 1:5) {
     validation = "spatial",
     model = "GLM",
     fold = i,
+    n_presence = length(pred_presence),
+    n_background = length(pred_background),
     AUC = auc_value,
     threshold = fold_threshold,
     sensitivity = sensitivity,
@@ -1113,6 +1136,11 @@ write_csv(
 write_csv(
   performance_drop,
   here("data", "processed", "performance_drop.csv")
+)
+
+write_csv(
+  block_size_record,
+  here("data", "processed", "block_size_record.csv")
 )
 
 write_csv(

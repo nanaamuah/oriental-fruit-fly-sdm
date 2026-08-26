@@ -43,14 +43,15 @@ The same MaxEnt model, scored two ways:
 Values are the mean and standard deviation across five folds.
 
 Two things to notice. The drop itself, about 0.17 AUC and 0.36 TSS for MaxEnt. And the standard
-deviation, which grows by a factor of thirty under blocked folds. Under random folds the five
-MaxEnt AUCs sit between 0.958 and 0.968. Under blocked folds they run 0.977, 0.553, 0.692,
-0.775 and 0.954. The model is excellent in some regions and barely better than a coin toss in
-others, and random cross-validation cannot see that because every fold contains neighbours of
-its own training points.
+deviation, which grows by more than an order of magnitude under blocked folds. Under random
+folds the five MaxEnt AUCs sit between 0.958 and 0.968. Under blocked folds they run 0.977,
+0.553, 0.692, 0.775 and 0.954.
 
 Both algorithms drop by a similar amount, which is the useful part of running two. The
 optimism is a property of the validation design, not of MaxEnt.
+
+What that spread means is a separate question from whether it is real, and the report is now
+careful about the difference. See "What was resolved" below.
 
 ---
 
@@ -61,24 +62,45 @@ oriental_fruit_fly/
 ├── r_scripts/
 │   ├── 00_setup.R              environment checks, run once
 │   ├── 01_downloads.R          GBIF, WorldClim and EPPO retrieval
-│   ├── 02_data_cleaning_qc.R   cleaning, thinning, kill-switch check
+│   ├── 02_data_cleaning_qc.R   cleaning, thinning, stopping-rule check
 │   ├── 03_analysis.R           predictors, models, both validation schemes
 │   └── 04_figures.R            figures, maps and tables
 ├── data/
 │   ├── raw/                    downloaded, never edited (not tracked)
-│   └── processed/              script output, rebuildable (not tracked)
+│   └── processed/              script output (tracked, except teph_clean.csv)
 ├── outputs/
 │   ├── figures/                validation plot, response curves
 │   ├── maps/                   West Africa and Ghana suitability
-│   └── tables/                 validation metrics, variable contributions
-├── qc_plots/                   exploratory cleaning diagnostics
-├── report.qmd                  the write-up
+│   └── tables/                 everything the report reads
+├── qc_plots/                   exploratory cleaning diagnostics (not tracked)
+├── report.qmd                  the manuscript, renders to index.html
+├── references.bib              bibliography
 ├── renv.lock                   package versions
-└── records.txt                 console output kept during the run
+├── LICENCE
+└── README.md
 ```
 
 Run the scripts in numerical order. Each writes what the next one reads, so nothing needs to be
 held in memory between them.
+
+---
+
+## What is tracked
+
+`.gitignore` is the authority here, and it says the following.
+
+Tracked: `r_scripts/`, `report.qmd`, `references.bib`, `renv.lock`, `LICENCE`, `.Rprofile`,
+all of `outputs/`, and all of `data/processed/` apart from one file.
+
+Ignored, with reasons: `data/raw/`, because of source licence conditions and size;
+`data/processed/teph_clean.csv`, because it is a large intermediate that
+`02_data_cleaning_qc.R` rebuilds in one pass; `qc_plots/`, because those are scoping
+diagnostics and not finished outputs; `renv/library/` and `renv/staging/`, restored from
+`renv.lock`; and the usual Quarto, R session and OS files.
+
+`data/processed/` being tracked is what allows a reviewer to clone the repository and rerun
+`04_figures.R` without refitting the models. The report itself reads only from
+`outputs/tables/`, so it renders from a clone without touching `data/processed/` at all.
 
 ---
 
@@ -92,10 +114,8 @@ held in memory between them.
 | EPPO Global Database | Recorded distribution for DACUDO | EPPO terms, attribute |
 
 Downloading from GBIF through `occ_download()` needs credentials in `.Renviron`
-(`GBIF_USER`, `GBIF_PWD`, `GBIF_EMAIL`). The route is used rather than `occ_search()` because
-it mints a citable DOI, which is what makes the download reproducible by someone else.
-
-Neither `data/raw/` nor `data/processed/` is tracked. Both rebuild from the scripts.
+(`GBIF_USER`, `GBIF_PWD`, `GBIF_EMAIL`). That route is used because it mints a citable DOI,
+which is what makes the download reproducible by someone else. `occ_search()` does not.
 
 ---
 
@@ -118,11 +138,12 @@ repeated records, 10,343 records in total, with one coordinate holding 351. Thin
 WorldClim cell level handles both exact repeats and distinct coordinates carrying identical
 climate values, so a separate duplicate filter would have been redundant.
 
-**Capital-city and sea flags were not used as deletion criteria.** The capital test flagged 433
-records, most of them plausible urban observations. The sea test proved highly sensitive to
-coastline resolution. Neither is a specific enough indicator of error to delete on, so whether
-a location could enter a climatic model was decided by whether WorldClim returned a value for
-it. That is the 146 records in row three.
+**Capital-city and sea flags were not used as deletion criteria.** Seven tests were run and
+five were used to delete. The capital test flagged 433 records, most of them plausible urban
+observations. The sea test proved highly sensitive to coastline resolution. Neither is a
+specific enough indicator of error to delete on, so whether a location could enter a climatic
+model was decided by whether WorldClim returned a value for it. That is the 146 records in row
+three.
 
 The Tephritidae background went through the same five tests, 328,343 down to 324,912, then the
 same cell-level thinning. Presences and background must be cleaned identically, or any
@@ -142,7 +163,7 @@ and reruns on demand.
 
 Note what 75 records means in context: 11,757 records globally, 75 of them in Africa after
 cleaning, for a pest present in 35 sub-Saharan countries. The model is fitted globally for that
-reason and projected onto West Africa, rather than fitted on African records alone.
+reason and projected onto West Africa, and it is not fitted on African records alone.
 
 ---
 
@@ -159,14 +180,21 @@ looking. A uniform random background would have handed the model survey effort a
 report the result as climate.
 
 MaxEnt and a ridge-penalised logistic GLM were both fitted, then both scored under both
-schemes. Block size for the spatial folds came from the empirical range of spatial
-autocorrelation in the predictors, estimated with `cv_spatial_autocor()`, not chosen by eye.
-The blocked validation was then repeated at half and double that size to show how far the
-result depends on it; those results are in `data/processed/block_sensitivity_summary.csv`.
+schemes. Block size came from the empirical range of spatial autocorrelation in the predictors,
+estimated with `cv_spatial_autocor()`, not chosen by eye. `03_analysis.R` writes that number to
+`data/processed/block_size_record.csv` and `04_figures.R` carries it into
+`outputs/tables/block_size_sensitivity.csv`, so the size actually used is reported and not left
+inside the session. The blocked validation was repeated at half and double that size, and the
+report tabulates all three.
 
 Within every fold the classification threshold is taken from the training data and applied to
 the held-out data. Taking it from the test data would let the threshold adapt to the answer and
 would hide the effect being measured.
+
+One caveat about the metrics. The quantity entering TSS as specificity is the proportion of
+held-out background points below the threshold, and background points are surveyed localities,
+not confirmed absences. These values are comparable between the two validation schemes and are
+not comparable with a TSS computed from presence-absence data.
 
 ---
 
@@ -196,30 +224,77 @@ partition of explained variance.
 
 ## Maps and the EPPO overlay
 
-The suitability maps carry the EPPO recorded distribution as country outline colour. Where the
-model predicts high suitability inside a country EPPO has never recorded, that is either a
-surveillance gap or a false positive, and the map cannot tell you which. EPPO never entered the
-model, so it is a genuinely external comparison, but it is a record of reporting rather than a
-record of presence.
+The suitability maps carry the EPPO recorded distribution as country outline colour. EPPO never
+entered the model, so it is a genuinely external comparison, but it is a record of reporting
+and not a record of presence.
+
+At country level in West Africa it discriminates nothing, because every West African country
+carries an EPPO record for this species. The no-record class the overlay was built to reveal is
+empty for this region. That is worth stating and not glossing over: the open question in West
+Africa is where within a country the risk sits, and a country-level phytosanitary register
+cannot answer it.
 
 Saint Helena is in Natural Earth's Western Africa subregion and sits far out in the Atlantic.
 It is dropped for plotting only.
 
 ---
 
+## What was resolved
+
+Four things were carried as loose ends in earlier versions of this README and of the report.
+They are recorded here because the fixes touch tracked outputs.
+
+**The block-size sensitivity test was run and never reported.** Both README and report told the
+reader that half and double block sizes had been tested, then pointed at a file under
+`data/processed/` without stating the outcome. `03_analysis.R` now also writes the block sizes
+themselves, and `04_figures.R` builds `outputs/tables/block_size_sensitivity.csv`, which the
+report tabulates. The conclusion holds at all three sizes.
+
+**Fold composition was never reported, and the between-fold spread was over-interpreted.** The
+report read the spread in blocked-fold AUC as a map of where the model works and where it
+fails. That reading is possible, and so are two others: blocked folds force extrapolation into
+climate space the training fold may not cover, and blocked folds hold unequal numbers of
+presences, so a small fold returns an unstable AUC for reasons unconnected to the model. Every
+CV loop in `03_analysis.R` now records `n_presence` and `n_background` per fold,
+`04_figures.R` writes `outputs/tables/fold_composition.csv`, and the report sets out all three
+explanations instead of asserting one.
+
+**The report could not render from a clone.** It read `cleaning_log.csv` from
+`data/processed/`, while every other table it used came from `outputs/tables/`. All tables the
+report reads are now written to `outputs/tables/` by `04_figures.R`, and the report reads
+nothing else.
+
+**The renv caveat was false.** An earlier version of this README warned that `renv.lock` did
+not list `blockCV`, `modEvA`, `Hmisc`, `lwgeom` or `tidyr`. The committed lockfile pins all
+five, at blockCV 4.0-0, modEvA 3.45, Hmisc 5.2-6, lwgeom 0.2-17 and tidyr 1.3.2, and it covers
+every package the scripts load. The warning is removed.
+
+---
+
 ## Reproducing this
 
-R 4.6.1. Restore the package library with `renv::restore()`, then run `r_scripts/` in order.
+R 4.6.1. Restore the package library with `renv::restore()`, then run `r_scripts/` in order and
+render the report:
 
-Two honest caveats about reproducibility.
+```r
+renv::restore()
+source("r_scripts/00_setup.R")
+source("r_scripts/01_downloads.R")
+source("r_scripts/02_data_cleaning_qc.R")
+source("r_scripts/03_analysis.R")
+source("r_scripts/04_figures.R")
+quarto::quarto_render("report.qmd")
+```
 
-`renv.lock` as committed does not list `blockCV`, `modEvA`, `Hmisc`, `lwgeom` or `tidyr`, all of
-which the scripts load. The lockfile was snapshotted before those packages entered the
-workflow. Run `renv::snapshot()` before relying on it.
+`00_setup.R` calls `renv::init()`, which is a one-time step; on a restored project run
+`renv::status()` instead. The report is set to `output-file: index.html` with
+`embed-resources: true`, so rendering produces one self-contained file and no
+`report_files/` directory.
 
-MaxEnt runs on Java through `rJava`, and a version mismatch does not surface until `MaxEnt()`
-is first called. `00_setup.R` tests for it up front. If Java will not cooperate, the ridge GLM
-is pure R and reproduces the same validation finding on its own.
+One reproducibility caveat remains. MaxEnt runs on Java through `rJava`, and a version mismatch
+does not surface until `MaxEnt()` is first called. `00_setup.R` tests for it up front. If Java
+will not cooperate, the ridge GLM is pure R and reproduces the same validation finding on its
+own.
 
 Seeds are set before background sampling, fold assignment and every GLM fit. MaxEnt itself is
 deterministic given its inputs.

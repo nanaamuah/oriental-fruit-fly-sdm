@@ -1,8 +1,8 @@
 ---
-title: "Climatic suitability for the oriental fruit fly across West Africa"
-subtitle: "How much of a species distribution model survives spatial cross-validation"
+title: "Random cross-validation overstates the performance of a climatic suitability model for *Bactrocera dorsalis* in West Africa"
 author: "Immanuel Nana Amuah"
 date: last-modified
+keywords: [Bactrocera dorsalis, species distribution model, spatial cross-validation, MaxEnt, sampling bias, West Africa]
 format:
   html:
     toc: true
@@ -11,6 +11,8 @@ format:
     code-fold: true
     df-print: kable
     fig-cap-location: bottom
+    tbl-cap-location: top
+    embed-resources: true
 bibliography: references.bib
 csl: https://www.zotero.org/styles/apa
 execute:
@@ -22,182 +24,164 @@ output-file: index.html
 
 ```{r}
 #| label: setup
+#| include: false
+
 library(here)
 library(readr)
 library(dplyr)
 library(knitr)
 
-validation_table <- read_csv(
-  here("outputs", "tables", "validation_metric_table.csv"),
-  show_col_types = FALSE
-)
+# Everything read here lives in outputs/tables, which is the folder tracked as a finished
+# product. Reading from data/processed would make the report unrenderable for anyone who
+# has not run the pipeline themselves.
+validation_table <- read_csv(here("outputs", "tables", "validation_metric_table.csv"), show_col_types = FALSE)
+cv_summary <- read_csv(here("outputs", "tables", "cv_summary.csv"), show_col_types = FALSE)
+cv_folds <- read_csv(here("outputs", "tables", "cv_fold_results.csv"), show_col_types = FALSE)
+fold_composition <- read_csv(here("outputs", "tables", "fold_composition.csv"), show_col_types = FALSE)
+block_sensitivity <- read_csv(here("outputs", "tables", "block_size_sensitivity.csv"), show_col_types = FALSE)
+contribution_table <- read_csv(here("outputs", "tables", "maxent_variable_contribution.csv"), show_col_types = FALSE)
+cleaning_log <- read_csv(here("outputs", "tables", "cleaning_log.csv"), show_col_types = FALSE)
+teph_cleaning_log <- read_csv(here("outputs", "tables", "teph_cleaning_log.csv"), show_col_types = FALSE)
 
-contribution_table <- read_csv(
-  here("outputs", "tables", "maxent_variable_contribution.csv"),
-  show_col_types = FALSE
-)
+f2 <- function(x) formatC(x, format = "f", digits = 2)
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+f1 <- function(x) formatC(x, format = "f", digits = 1)
 
-cleaning_log <- read_csv(
-  here("data", "processed", "cleaning_log.csv"),
-  show_col_types = FALSE
-)
+pick <- function(mdl, val, col) {
+  cv_summary[[col]][cv_summary$model == mdl & cv_summary$validation == val]
+}
+
+mx_auc_r <- pick("MaxEnt", "random", "mean_AUC")
+mx_auc_s <- pick("MaxEnt", "spatial", "mean_AUC")
+mx_sd_r <- pick("MaxEnt", "random", "sd_AUC")
+mx_sd_s <- pick("MaxEnt", "spatial", "sd_AUC")
+mx_tss_r <- pick("MaxEnt", "random", "mean_TSS")
+mx_tss_s <- pick("MaxEnt", "spatial", "mean_TSS")
+mx_boy_r <- pick("MaxEnt", "random", "mean_Boyce")
+mx_boy_s <- pick("MaxEnt", "spatial", "mean_Boyce")
+
+gl_auc_r <- pick("GLM", "random", "mean_AUC")
+gl_auc_s <- pick("GLM", "spatial", "mean_AUC")
+gl_tss_r <- pick("GLM", "random", "mean_TSS")
+gl_tss_s <- pick("GLM", "spatial", "mean_TSS")
+gl_boy_r <- pick("GLM", "random", "mean_Boyce")
+gl_boy_s <- pick("GLM", "spatial", "mean_Boyce")
+
+mx_auc_drop <- mx_auc_r - mx_auc_s
+mx_tss_drop <- mx_tss_r - mx_tss_s
+mx_boy_drop <- mx_boy_r - mx_boy_s
+gl_auc_drop <- gl_auc_r - gl_auc_s
+gl_tss_drop <- gl_tss_r - gl_tss_s
+gl_boy_drop <- gl_boy_r - gl_boy_s
+
+sd_ratio <- mx_sd_s / mx_sd_r
+
+mx_spatial <- cv_folds %>% filter(model == "MaxEnt", validation == "spatial")
+mx_random <- cv_folds %>% filter(model == "MaxEnt", validation == "random")
+
+spatial_auc_lo <- min(mx_spatial$AUC)
+spatial_auc_hi <- max(mx_spatial$AUC)
+random_auc_lo <- min(mx_random$AUC)
+random_auc_hi <- max(mx_random$AUC)
+spatial_boyce_lo <- min(mx_spatial$Boyce)
+
+pres_lo <- min(mx_spatial$n_presence)
+pres_hi <- max(mx_spatial$n_presence)
+pres_lo_fold <- mx_spatial$fold[which.min(mx_spatial$n_presence)]
+worst_fold <- mx_spatial$fold[which.min(mx_spatial$AUC)]
+worst_fold_pres <- mx_spatial$n_presence[which.min(mx_spatial$AUC)]
+
+n_presences <- cleaning_log$records[nrow(cleaning_log)]
+n_raw <- cleaning_log$records[1]
+n_teph_raw <- teph_cleaning_log$records[1]
+n_teph_clean <- teph_cleaning_log$records[nrow(teph_cleaning_log)]
+
+size_selected <- block_sensitivity$`Size (km)`[block_sensitivity$`Block size` == "Estimated range"]
+size_half <- block_sensitivity$`Size (km)`[block_sensitivity$`Block size` == "Half the estimated range"]
+size_double <- block_sensitivity$`Size (km)`[block_sensitivity$`Block size` == "Twice the estimated range"]
 ```
 
-## Summary {.unnumbered}
+## Abstract {.unnumbered}
 
-*Bactrocera dorsalis* was first detected in Africa in 2003 and had reached 35 sub-Saharan
-countries within fifteen years [@mutamiswa2021]. It is a regulated quarantine pest in the
-markets West African horticulture sells into, and its recorded distribution is now dense enough
-to model.
+*Bactrocera dorsalis* (Hendel) reached Africa in 2003 and now occurs across most of the sub-Saharan region, where it is a regulated quarantine pest in the markets West African horticulture supplies. Species distribution models are routinely used to set surveillance priorities for pests of this kind, and they are routinely validated by holding out randomly selected points, which leaves every test point surrounded by its own training data. We fitted a climatic suitability model for the species across West Africa from `r format(n_presences, big.mark = ",")` spatially thinned public occurrence records and a target-group background of other Tephritidae, then scored the same model under random five-fold cross-validation and under folds separated by spatial blocks of `r f1(size_selected)` km. Mean AUC fell from `r f3(mx_auc_r)` to `r f3(mx_auc_s)`, TSS from `r f3(mx_tss_r)` to `r f3(mx_tss_s)`, and the continuous Boyce index from `r f3(mx_boy_r)` to `r f3(mx_boy_s)`. A ridge-penalised logistic regression fitted to the same data lost a comparable amount, which indicates the optimism belongs to the validation design and not to the algorithm. The standard deviation across folds rose by a factor of about `r f1(sd_ratio)`, and blocked-fold AUC ranged from `r f3(spatial_auc_lo)` to `r f3(spatial_auc_hi)`. That spread has at least two explanations the design cannot separate, since the blocked folds differ both in the degree of spatial independence and in the number of presences they contain. Results were stable across block sizes from `r f1(size_half)` km to `r f1(size_double)` km. Where a suitability model of this kind informs surveillance or phytosanitary decisions, the blocked score and the fold composition behind it are the figures that should accompany it.
 
-This report fits a climatic suitability model for the species across West Africa from 1,089
-cleaned public occurrence records, and then does the thing that is usually left out. The same
-model is scored under conventional random cross-validation and under folds separated in space.
-Apparent performance falls from an AUC of 0.964 to 0.790, and TSS from 0.826 to 0.465. The
-standard deviation across folds grows by roughly a factor of thirty.
+## Introduction
 
-If a model still works well when tested on new geographic areas, it actually understands the climate patterns. If it fails on new areas, it just memorized the map of where scientists prefer to look for bugs.
+*Bactrocera dorsalis* was first detected in Africa in 2003 and had been recorded from 35 sub-Saharan countries within fifteen years [@mutamiswa2021]. It attacks a wide range of cultivated and wild fruit, and it is a regulated quarantine pest in several of the markets West African horticultural exports supply, so its distribution carries direct trade consequences. Taxonomy complicates the record. *B. invadens*, the name under which the African invasion was first described, was synonymised with *B. dorsalis* in 2015 [@schutze2015], and records filed under both names now resolve to a single taxon key, so the African material is retained under the current name.
 
-## What this model is, and is not
+Correlative species distribution models are the usual response to a question of this kind, because the occurrence data are public and the climate surfaces are global. Their reported performance, however, depends on how the validation folds were drawn. When held-out points are selected at random from a spatially clustered dataset, most test points have training points as near neighbours, so a model can score well by interpolating locally without having learned anything transferable [@roberts2017]. Folds separated in space remove that shortcut, and the difference between the two scores is a measure of how much of the apparent performance was interpolation [@valavi2019]. That comparison is reported far less often than the random-fold figure it corrects.
 
-This is a model of where climate resembles the climate at places where someone recorded this
-insect and uploaded the record. GBIF is a convenience sample, and recording effort follows
-funded projects, road networks and institutional interest [@zizka2019]. The target-group
-background used here reduces that distortion [@phillips2009] but does not remove it.
+Occurrence data introduce a second problem with the same signature. Public repositories are convenience samples, and recording effort follows funded projects, road networks and institutional interest [@zizka2019]. A model fitted against a uniform random background can separate presences from the background partly on survey effort and report the separation as climate. Drawing the background from the recorded locations of related, similarly collected taxa is the standard correction [@phillips2009], and it reduces the distortion without removing it.
 
-A climate-only model omits host availability, irrigation, trade pathways, natural enemies and
-management, all of which decide whether a climatically suitable place is actually infested.
-MaxEnt output is a relative suitability index, not a probability of presence [@elith2011], and
-thresholding it into a binary map imposes a decision the model does not contain.
+We report a climatic suitability model for *B. dorsalis* across West Africa and Ghana, and we use it to quantify the gap between the two validation designs. Two algorithms were fitted so that the result could not be attributed to one fitting procedure. We also report the composition of every fold, which the comparison needs and which is usually left out, and we test how far the blocked result depends on the block size chosen.
 
-Absence of records from a country is not absence of the pest. That asymmetry falls hardest on
-the countries with the least surveillance capacity, which is exactly where a suitability map
-would be most useful.
-
-## Question
-
-First, which climatic variables separate the localities where *B. dorsalis* has been recorded
-from the wider background, and what does the resulting suitability surface look like over West
-Africa and over Ghana?
-
-Second, when the model is validated on spatially separated blocks rather than randomly
-held-out points, so that it can no longer score itself on the neighbourhood it was trained in,
-how far does its apparent performance fall?
-
-## Data
+## Materials and methods
 
 ### Occurrence records
 
-Records were retrieved through the GBIF download API, which mints a citable DOI for each query.
-The *B. dorsalis* download returned 11,757 georeferenced records with no flagged geospatial
-issue (DOI 10.15468/dl.jzyuk9). A second download returned 328,343 Tephritidae records
-excluding *B. dorsalis* (DOI 10.15468/dl.g9edqf), used later to build the background.
+Records were retrieved through the GBIF download API, which mints a citable DOI for each query and therefore allows the download to be repeated by someone else. The *B. dorsalis* download returned `r format(n_raw, big.mark = ",")` georeferenced records carrying no flagged geospatial issue (DOI 10.15468/dl.jzyuk9). A second download returned `r format(n_teph_raw, big.mark = ",")` Tephritidae records excluding *B. dorsalis* (DOI 10.15468/dl.g9edqf), used to build the background.
 
-Taxonomy is an important factor here. *B. invadens*, the name under which the African invasion was first
-described, was synonymised with *B. dorsalis* in 2015 [@schutze2015]. Records filed under both
-names resolve to the same GBIF taxon key, so the African records are not lost.
+### Climate predictors
 
-### Predictors
+Nineteen bioclimatic variables from WorldClim v2.1 at 2.5 arc-minutes [@fick2017]. That resolution is about 4.5 km at the equator, which is finer than the thinned occurrence data can support and coarse enough to keep the prediction step to seconds.
 
-Nineteen bioclimatic variables from WorldClim v2.1 at 2.5 arc-minutes [@fick2017]. That
-resolution is roughly 4.5 km at the equator, which is finer than the occurrence data can
-support once thinned, and coarse enough to keep the prediction step to seconds.
+### Cleaning and thinning
 
-### Cleaning
+Seven CoordinateCleaner tests were run and five were used as deletion criteria: administrative centroids, identical latitude and longitude, the GBIF headquarters in Copenhagen, biodiversity institution addresses, and exact zeros [@zizka2019]. These flagged 35 centroids and 16 institutions, with three records caught by both tests, so the loss is 48 and not 51.
 
-```{r}
-#| label: tbl-cleaning
-#| tbl-cap: "Records retained at each cleaning stage."
-kable(cleaning_log, col.names = c("Stage", "Records"), format.args = list(big.mark = ","))
-```
+The capital-city and sea tests were run during scoping and were not used to delete. The capital test flagged 433 records, most of them plausible urban observations of a pest that persists in backyard fruit trees, and the sea test proved highly sensitive to coastline resolution. Neither is specific enough to an error to justify deletion on its own. Whether a location could enter a climatic model was therefore settled by whether WorldClim returned a value for it, which removed a further 146 records.
 
-Five CoordinateCleaner tests were applied: administrative centroids, identical latitude and
-longitude, the GBIF office in Copenhagen, biodiversity institution addresses, and exact zeros
-[@zizka2019]. These flagged 35 centroids and 16 institutions, three records being caught by
-both, for a loss of 48.
+Exact-coordinate duplicates were not filtered as a separate step. 856 coordinates carried repeated records, 10,343 records in total, with one coordinate holding 351. Thinning to one record per WorldClim cell removes exact repeats and distinct coordinates carrying identical climate values in the same operation, so a separate duplicate filter would have been redundant. Thinning left `r format(n_presences, big.mark = ",")` presences. The Tephritidae background passed through the same five tests, `r format(n_teph_raw, big.mark = ",")` down to `r format(n_teph_clean, big.mark = ",")`, and the same cell-level thinning. Presences and background have to be cleaned identically, because any difference the model finds between them could otherwise be an artefact of the cleaning.
 
-Two tests were deliberately not used as deletion criteria. The capital-city test flagged 433
-records, most of them plausible urban observations of a pest that thrives in backyard fruit
-trees. The sea test proved highly sensitive to coastline resolution. Neither is specific enough
-to delete on, so whether a location could enter a climatic model was settled instead by whether
-WorldClim returned a value for it. That removed a further 146 records.
+### Stopping rule
 
-Exact-coordinate duplicates were not filtered separately. 856 coordinates carried repeated
-records, 10,343 records in total, one coordinate holding 351. Thinning to one record per
-WorldClim cell handles both exact repeats and distinct coordinates carrying identical climate
-values, which left 1,089 presences.
+A checkpoint was fixed before fitting began. If the cleaned African records occupied fewer than about 25 distinct 100 km cells, the model would describe a small number of field campaigns and not a climate envelope, and the study species would be switched to *Spodoptera frugiperda*. 75 cleaned African records fell in 75 distinct 100 km cells, so the threshold was cleared.
 
-The Tephritidae background passed through the same five tests, 328,343 down to 324,912, and the
-same cell-level thinning. Presences and background have to be cleaned identically, or a
-difference the model finds between them could be an artefact of the cleaning.
-
-### The stopping rule
-
-A checkpoint was set before fitting began: if the cleaned African records occupied fewer than
-about 25 distinct 100 km cells, the model would be describing a few field campaigns rather than
-a climate envelope, and the species would be switched to *Spodoptera frugiperda*.
-
-75 cleaned African records fell in 75 distinct 100 km cells. The threshold was cleared.
-
-The sparseness is still worth stating plainly. 75 African records, after cleaning, for a pest
-established across 35 countries. The model is therefore fitted on the global record and
-projected onto West Africa, rather than fitted on African records alone.
-
-## Method
+The sparseness is worth stating plainly. 75 African records survive cleaning for a pest established across 35 countries. The model is therefore fitted on the global record and projected onto West Africa, and it is not fitted on African records alone.
 
 ### Predictor screening
 
-Variables were dropped one at a time by variance inflation factor until every remaining
-variable fell below a VIF of 10. Ten survived: BIO1, BIO2, BIO3, BIO8, BIO9, BIO13, BIO14,
-BIO15, BIO18 and BIO19.
+Variables were dropped one at a time by variance inflation factor until every remaining variable fell below a VIF of 10. Ten survived: BIO1, BIO2, BIO3, BIO8, BIO9, BIO13, BIO14, BIO15, BIO18 and BIO19. Screening was run on the West African stack and not on the global one, because collinearity between bioclimatic variables is regional, and two variables that separate cleanly worldwide can be near-identical across West Africa alone. Screening globally would have retained variables that are redundant in the area being predicted.
 
-Screening was run on the West African stack rather than the global one. Collinearity between
-bioclimatic variables is regional, and two variables that separate cleanly worldwide can be
-near-identical across West Africa alone. Screening globally would have retained variables that
-are redundant in the area being predicted.
+### Target-group background
 
-### Background
+10,000 background points were drawn from the recorded locations of other Tephritidae, excluding any cell holding a *B. dorsalis* presence. Fruit flies are collected by the same traps, in the same orchards, by the same people, so where other Tephritidae were recorded approximates where anyone was looking [@phillips2009]. The model is therefore asked to separate presences from other surveyed places. Cells holding a presence were excluded so that the same cell could not appear on both sides of the response.
 
-10,000 background points were drawn from the recorded locations of other Tephritidae, excluding
-any cell holding a *B. dorsalis* presence.
-
-The reasoning is the target-group argument [@phillips2009]. Fruit flies are collected by the
-same traps, in the same orchards, by the same people. Where other Tephritidae were recorded is
-therefore an approximation of where anyone was looking. Drawing background from those locations
-means the model is asked to separate presences from other surveyed places, rather than from
-unsurveyed wilderness. A uniform random background would have handed the model a map of survey
-effort and allowed it to report the result as climate.
-
-Cells holding a presence were excluded from the background to avoid putting the same cell on
-both sides of the response.
+The zero in this design does not mean absence. It means a place where somebody looked and recorded a different fruit fly, and every metric reported below should be read with that in mind.
 
 ### Models
 
-MaxEnt [@phillips2006; @elith2011] and a ridge-penalised logistic regression were both fitted.
-Ridge instead of lasso, because the retained predictors remain correlated after VIF screening,
-and ridge shrinks correlated coefficients together instead of arbitrarily selecting one.
+MaxEnt [@phillips2006; @elith2011] and a ridge-penalised logistic regression were both fitted to the same table. Ridge was used because the retained predictors remain correlated after VIF screening; ridge shrinks correlated coefficients together, while lasso would select one of a correlated pair arbitrarily and zero the others. The penalty was chosen by internal cross-validation at the one-standard-error rule.
 
-Two algorithms were run so that the validation result could not be dismissed as a quirk of one
-fitting procedure.
+### Cross-validation design
 
-### Validation
+Random five-fold cross-validation, stratified by response, provides the conventional baseline. Spatially blocked five-fold cross-validation provides the contrast [@valavi2019]. Points were reprojected to an equal-area coordinate system before blocking, so that block sizes are real distances.
 
-Random five-fold cross-validation, stratified by response, provides the conventional baseline.
-Spatially blocked five-fold cross-validation provides the contrast [@valavi2019].
+Block size was taken from the empirical range of spatial autocorrelation in the predictors, estimated by variogram, which gave `r f1(size_selected)` km. Choosing the size from the data and not by eye is what makes the blocked design defensible. Because that estimate is a single number carrying its own uncertainty, the blocked validation was repeated at `r f1(size_half)` km and `r f1(size_double)` km, and the three results are compared in Section 3.4.
 
-Block size was taken from the empirical range of spatial autocorrelation in the predictors,
-estimated by variogram. The blocked validation was then repeated at
-half and double that size, because the estimated range is one number with uncertainty around
-it.
+### Performance metrics
 
-Three metrics are reported: AUC, TSS [@allouche2006], and the continuous Boyce index
-[@hirzel2006], the last being the one designed for presence-background.
+Three metrics are reported: AUC, the true skill statistic [@allouche2006], and the continuous Boyce index [@hirzel2006], the last of which is designed for presence-background data. Within every fold the classification threshold was taken from the training data at maximum sensitivity plus specificity, then applied to the held-out data. Taking the threshold from the test data would let it adapt to the answer and would conceal the effect being measured.
 
-Within every fold the classification threshold was taken from the training data at maximum
-sensitivity plus specificity, then applied to the held-out data. Taking it from the test data
-would let the threshold adapt to the answer and would conceal the effect being measured.
+One property of these metrics in a presence-background design needs stating. The quantity entering the true skill statistic as specificity is the proportion of held-out background points falling below the threshold, and background points are surveyed localities and not confirmed absences. The values reported here are therefore not comparable with a true skill statistic computed from presence-absence data, and they are used only to compare two validation schemes applied to the same data.
+
+Fold means are reported with their standard deviation across the five folds, which is a crude summary for a bounded metric estimated from five values, so the fold-level results are given in full in Section 3.3 and the interval should not be read as a confidence interval.
+
+### Software
+
+Analysis in R 4.6.1. Occurrence retrieval with rgbif, cleaning with CoordinateCleaner 3.0.1 [@zizka2019], raster handling with terra, predictor download with geodata, collinearity screening with usdm, modelling with predicts and glmnet, spatial cross-validation with blockCV 4.0-0 [@valavi2019], the Boyce index with modEvA, and figures with ggplot2 and sf. Seeds are set before background sampling, fold assignment and every GLM fit, and MaxEnt is deterministic given its inputs. Package versions are pinned with renv.
 
 ## Results
+
+### Data reduction
+
+```{r}
+#| label: tbl-cleaning
+#| tbl-cap: "Occurrence records retained at each cleaning stage."
+kable(cleaning_log, col.names = c("Stage", "Records"), format.args = list(big.mark = ","))
+```
+
+The reduction is dominated by thinning and not by artefact removal, as @tbl-cleaning shows. Coordinate artefact filtering and missing climate coverage together removed `r format(n_raw - cleaning_log$records[3], big.mark = ",")` records, while thinning to one record per WorldClim cell removed a further `r format(cleaning_log$records[3] - n_presences, big.mark = ",")`. That ratio is itself a measure of how clustered the raw record is.
 
 ### The validation comparison
 
@@ -207,22 +191,35 @@ would let the threshold adapt to the answer and would conceal the effect being m
 kable(validation_table)
 ```
 
-![Validation scores by scheme, algorithm and metric. Small points are individual folds; large points and error bars are mean and standard deviation.](outputs/figures/validation_plot.png){#fig-validation}
+![Validation scores by scheme, algorithm and metric. Small points are individual folds; large points and error bars are mean and standard deviation across five folds.](outputs/figures/validation_plot.png){#fig-validation}
 
-MaxEnt loses 0.174 AUC, 0.361 TSS and 0.291 Boyce when folds are separated in space. The GLM
-loses 0.149, 0.300 and 0.315. Both algorithms fall by a similar amount, which is the useful
-part of having run two: the optimism belongs to the validation design, not to MaxEnt.
+MaxEnt lost `r f3(mx_auc_drop)` AUC, `r f3(mx_tss_drop)` TSS and `r f3(mx_boy_drop)` Boyce when the folds were separated in space. The ridge GLM lost `r f3(gl_auc_drop)`, `r f3(gl_tss_drop)` and `r f3(gl_boy_drop)`. Both algorithms fell by a comparable amount, which is the useful part of having run two; the optimism appears to belong to the validation design and not to MaxEnt.
 
-The spread is equally as important as the mean. Under random folds the five MaxEnt AUCs sit between
-0.958 and 0.968, a standard deviation of 0.005. Under blocked folds they run 0.977, 0.553,
-0.692, 0.775 and 0.954, a standard deviation of 0.179. The model is excellent in some regions
-and close to uninformative in others. Random cross-validation reports none of that, because
-every fold contains near neighbours of its own training points, and a model only has to
-interpolate between them to score well [@roberts2017].
+The spread matters as much as the mean. Under random folds the five MaxEnt AUCs sit between `r f3(random_auc_lo)` and `r f3(random_auc_hi)`, a standard deviation of `r f3(mx_sd_r)`. Under blocked folds they run from `r f3(spatial_auc_lo)` to `r f3(spatial_auc_hi)`, a standard deviation of `r f3(mx_sd_s)`, which is larger by a factor of about `r f1(sd_ratio)`. The lowest blocked-fold Boyce index for MaxEnt was `r f3(spatial_boyce_lo)`. A Boyce index near zero indicates no association between predicted suitability and the density of held-out presences, and a negative value indicates the association ran in the wrong direction.
 
-An AUC of 0.553 on one blocked fold is not a failed run to be removed. It is a warning that the model has learned the map of where entomologists have been working, and that it cannot be trusted to extrapolate to new areas. The blocked validation is the one that should travel with the model if it is used to inform surveillance or phytosanitary decisions.
+### Fold composition
 
-### Which predictors
+```{r}
+#| label: tbl-folds
+#| tbl-cap: "Composition and performance of each MaxEnt fold under both validation schemes. Presences and background are the counts held out for testing in that fold."
+kable(fold_composition)
+```
+
+Random folds hold approximately equal numbers of presences by construction, because the assignment is stratified by response. Blocked folds do not, since blocks are laid out in space and the presences are unevenly distributed across them. Held-out presence counts under blocked folds ranged from `r pres_lo` to `r pres_hi`, as @tbl-folds shows.
+
+Interestingly, the lowest blocked-fold AUC of `r f3(spatial_auc_lo)` came from fold `r worst_fold`, which held `r worst_fold_pres` presences, while the smallest fold, fold `r pres_lo_fold`, held `r pres_lo`. Those counts have to be read alongside the scores, because a fold carrying few presences returns an unstable estimate for reasons unconnected to the model. The between-fold variance therefore mixes two sources that this design cannot separate.
+
+### Sensitivity to block size
+
+```{r}
+#| label: tbl-blocksize
+#| tbl-cap: "Blocked cross-validation performance at half, one and twice the estimated range of spatial autocorrelation."
+kable(block_sensitivity)
+```
+
+The blocked result is not an artefact of the particular block size chosen. Across block sizes from `r f1(size_half)` km to `r f1(size_double)` km the mean AUC stays well below the random-fold value of `r f3(mx_auc_r)`, and the standard deviation stays far above the random-fold value of `r f3(mx_sd_r)`, as @tbl-blocksize shows. The estimated range therefore sets the exact number, though it does not create the effect.
+
+### Predictor contributions
 
 ```{r}
 #| label: tbl-contribution
@@ -232,72 +229,61 @@ kable(contribution_table)
 
 ![MaxEnt response curves for the ten retained predictors. Axes vary among panels to show the shape of each response.](outputs/figures/maxent_response_curves.png){#fig-response}
 
-Wettest-month precipitation and annual mean temperature together account for just over four
-fifths of the contribution. That is consistent with the biology of a species that needs warmth
-and moist fruiting seasons. It is equally consistent with sampling bias, because people and
-their fruit trees also concentrate in warm, wet places, however, the two explanations cannot be
-separated by this model.
-
-Percent contribution in MaxEnt is heuristic and depends on the order variables entered the fit.
-The table should be read as a ranking, not as a partition of explained variance.
+Wettest-month precipitation and annual mean temperature together account for just over four fifths of the contribution. That is consistent with the biology of a species needing warmth and moist fruiting seasons. It is equally consistent with sampling bias, because people and their fruit trees also concentrate in warm, wet places, and the two explanations cannot be separated by this model. Percent contribution in MaxEnt is a heuristic that depends on the order in which variables entered the fit, so @tbl-contribution should be read as a ranking and not as a partition of explained variance.
 
 ### Suitability surfaces
 
-![Modelled climatic suitability across West Africa. Country outlines are coloured by EPPO recorded distribution, which never entered the model.](outputs/maps/west_africa_suitability_plot.png){#fig-wa}
+![Modelled climatic suitability across West Africa under MaxEnt. Country outlines are coloured by EPPO recorded distribution, which never entered the model. Saint Helena is in Natural Earth's Western Africa subregion and is excluded from the map extent for legibility.](outputs/maps/west_africa_suitability_plot.png){#fig-wa}
 
-![Modelled climatic suitability across Ghana.](outputs/maps/ghana_maxent_suitability.png){#fig-ghana}
+![Modelled climatic suitability across Ghana under MaxEnt, cropped from the regional surface and not refitted.](outputs/maps/ghana_maxent_suitability.png){#fig-ghana}
 
-The regional surface separates the Sahelian north, which the model treats as unsuitable, from
-the coastal and Guinea savanna belt running along the Gulf of Guinea. Within Ghana the pattern
-is not a simple south-to-north gradient. The highest values fall in the mid-country belt around
-the Black Volta and the Northern and Bono East areas, with a further pocket at the south-east
-coast, while the forest zone in the south-west returns middling values.
+The regional surface in @fig-wa separates a Saharan north the model treats as unsuitable from a broad band of moderate to high suitability between about 6 and 14 °N. Within that band the highest values form two inland foci, one over the Guinean and Sierra Leonean highlands near 10 °N and 12 °W, and a second over central Nigeria near 9 °N and 8 °E. The coastal forest strip returns intermediate values throughout, so the pattern is not a simple decline from the coast inland.
 
-The EPPO overlay is an external check. EPPO records reporting, not presence, so a country outlined as having no record is a country from which nobody has reported. Where the model predicts high suitability inside such a country, the map cannot distinguish a surveillance gap from a false positive. Read against the blocked-fold spread in @tbl-validation, that ambiguity should be taken seriously.
+Within Ghana, @fig-ghana shows the highest values in a band between about 9 and 10.5 °N in the centre and north of the country, with a smaller high-suitability pocket on the south-eastern coast near 6 °N. The south-western forest returns intermediate values, and the lowest values in the country fall in a band around 7 to 8.5 °N. Suitability values are a relative index and not a probability that the fly is present, so the ordering of these areas carries more information than their absolute values.
 
-## Limitations
+## Discussion
 
-75 cleaned African records is thin for a continental projection. The model leans on the Asian native range for its climate envelope and assumes the invasive population occupies the same one, which is the standard assumption in
-invasive-species modelling and is not always true.
+### Two explanations for the drop
 
-The target group correction assumes Tephritidae recording effort resembles *B. dorsalis* recording effort. That is plausible and untested here.
+The gap between the two validation schemes is large under both algorithms and survives every block size tested, so it is a property of the data and the design and not of one fitting procedure or one arbitrary choice. Its interpretation is less settled than the result itself, because at least two mechanisms produce the same signature and this study cannot separate them.
 
-**The block size assumption is testable and was tested.** Results at half and double the
-estimated autocorrelation range are written to `data/processed/block_sensitivity_summary.csv`
-by `03_analysis.R`.
+The first is the one the design was built to detect. Occurrence records are spatially clustered, so under random folds most held-out points have training points as near neighbours, and a model can score well by interpolating locally [@roberts2017]. On that reading the drop measures how much of the apparent performance was local interpolation, and the residual blocked score is what would transfer to a new region.
 
-**Nothing here says anything about the future.** No climate scenarios were run. Adding them
-would multiply the output without addressing the uncertainty this report has already found in
-the present-day fit.
+The second is environmental. Blocked folds withhold contiguous regions, so the training set for each fold may no longer span the climate space the test set occupies, and the model is asked to extrapolate. A drop under those conditions is partly a statement about non-analogue climate and not only about spatial autocorrelation. Distinguishing the two would need the environmental overlap between each training and test fold to be quantified, which was not done here and is the obvious next step.
 
-## Conclusion
+A third factor is arithmetic and is visible in @tbl-folds. Blocked folds hold unequal numbers of presences, from `r pres_lo` to `r pres_hi`, and a fold with few presences returns an unstable AUC whatever the model has learned. The between-fold variance reported in Section 3.2 therefore should not be read as a clean map of where the model works and where it fails. It is consistent with regional variation in model quality, and it is also consistent with unequal fold sizes, and the two are confounded in this design.
 
-The suitability surface is unremarkable and broadly matches what is known about the species.
-The validation comparison is what is noteworthy.
+None of that weakens the practical conclusion. Under all three readings the random-fold figure of `r f3(mx_auc_r)` overstates what this model would achieve on data from a region it was not trained on, and the blocked figure of `r f3(mx_auc_s)` is the more defensible number to quote.
 
-Reported the conventional way, this model has an AUC of 0.964 and would read as excellent.
-Reported honestly, it has an AUC of 0.790 with a standard deviation of 0.179, and performs
-close to chance in at least one region of the study area. Both numbers come from the same
-model, the same data and the same code. Only the way the folds were drawn differs.
+### What the EPPO overlay can and cannot show
 
-Species distribution models are among the most commonly submitted and most commonly
-over-claimed analyses in applied ecology. Where such a model informs surveillance priorities or
-phytosanitary decisions, the blocked figure is the one that should travel with it.
+The EPPO recorded distribution was attached to @fig-wa as an external comparison, because it never entered the model. In practice it discriminates nothing at this scale. Every West African country in @fig-wa carries an EPPO record of the species, so the no-record class the overlay was designed to reveal is empty for this region, and the map cannot be used to identify a country-level surveillance gap.
 
-## Data and code availability
+That absence of contrast is informative in its own way. It indicates the useful question in West Africa is no longer which countries hold the pest, since all of them report it, but where within each country the risk is concentrated. A country-level phytosanitary register cannot answer that, so the sub-national pattern in @fig-ghana is the part of the output with operational content, and it is exactly the part the blocked validation suggests should be treated with caution.
 
-Occurrence data are archived at GBIF under DOIs 10.15468/dl.jzyuk9 and 10.15468/dl.g9edqf.
-Climate data are WorldClim v2.1, CC BY-SA 4.0. Distribution records are from the EPPO Global
-Database (taxon DACUDO). Analysis code and package versions are in the repository; see
-`README.md` for the run order and for the reproducibility caveats.
+### Limitations
 
-## Software
+75 cleaned African records is thin for a continental projection. The model leans on the Asian native range for its climate envelope and assumes the invasive population occupies the same one, which is the standard assumption in invasive-species modelling and is not always true.
 
-Analysis in R 4.6.1. Occurrence retrieval with **rgbif**, cleaning with **CoordinateCleaner**
-3.0.1 [@zizka2019], raster handling with **terra**, predictor download with **geodata**,
-collinearity screening with **usdm**, modelling with **predicts** and **glmnet**, spatial
-cross-validation with **blockCV** 3.2-0 [@valavi2019], the Boyce index with **modEvA**, and
-figures with **ggplot2** and **sf**.
+The target-group correction assumes that Tephritidae recording effort resembles *B. dorsalis* recording effort. That is plausible and it is untested here. A model of where climate resembles the climate at recorded localities is not a map of where the insect is, and absence of records from a country is not absence of the pest.
+
+A climate-only model omits host availability, irrigation, trade pathways, natural enemies and management, all of which decide whether a climatically suitable place is actually infested. MaxEnt output is a relative suitability index and not a probability of presence [@elith2011], and thresholding it into a binary map imposes a decision the model does not contain.
+
+The metrics carry the qualifications set out in Section 2.9. Specificity is measured against surveyed background and not against confirmed absences, and the fold standard deviations summarise five values of a bounded quantity.
+
+No climate scenarios were run, so nothing here bears on future distributions. Adding them would multiply the output without addressing the uncertainty already found in the present-day fit.
+
+## Conclusions
+
+The suitability surface is unremarkable and broadly matches what is known about the species. The validation comparison is the result worth reporting.
+
+Scored the conventional way, this model returns an AUC of `r f3(mx_auc_r)` and would read as excellent. Scored on spatially separated folds, it returns `r f3(mx_auc_s)` with a standard deviation of `r f3(mx_sd_s)`, and at least one fold in which the Boyce index falls to `r f3(spatial_boyce_lo)`. Both figures come from the same model, the same data and the same code, and only the way the folds were drawn differs. A ridge GLM fitted to the same table loses a comparable amount, and the effect holds across block sizes from `r f1(size_half)` km to `r f1(size_double)` km.
+
+The between-fold spread should be reported alongside the mean and read against the fold composition in @tbl-folds, because unequal presence counts and genuine regional variation both contribute to it. Where a model of this kind informs surveillance priorities or phytosanitary decisions, the blocked score, the fold composition and the block size are the figures that should travel with it.
+
+## Data and code availability {.unnumbered}
+
+Occurrence data are archived at GBIF under DOIs 10.15468/dl.jzyuk9 and 10.15468/dl.g9edqf. Climate data are WorldClim v2.1, CC BY-SA 4.0. Distribution records are from the EPPO Global Database (taxon DACUDO). Analysis code and pinned package versions are in the repository, and `README.md` gives the run order and the reproducibility notes.
 
 ## References {.unnumbered}
 
