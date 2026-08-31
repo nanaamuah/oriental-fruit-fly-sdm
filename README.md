@@ -305,3 +305,5 @@ deterministic given its inputs.
 
 Code released under the terms in `LICENCE`. Data carry the licences of their sources, listed
 above. GBIF downloads must be cited by their DOIs.
+
+![Visitor Count](https://api.visitorbadge.io/api/visitors?path=nanaamuah/oriental-fruit-fly-sdm&countColor=%23263759)
